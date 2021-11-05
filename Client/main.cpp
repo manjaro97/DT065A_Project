@@ -2,12 +2,12 @@
 #include <string>
 #include <WS2tcpip.h>
 
-//"C:\Users\j_c_k\Desktop\Client\main.cpp" ; if ($?) { g++ main.cpp -o main -lws2_32 } ; if ($?) { .\main }
+// cd "c:\Users\j_c_k\Desktop\DT065A_Project\DT065A_Project\Client\" ; if ($?) { g++ main.cpp -o main -lws2_32} ; if ($?) { .\main }
 
 int main(){
     
     std::string ipAdress = "127.0.0.1";
-    int port = 54000;
+    int port = 54010;
 
     // Initialize WinSock
     WSAData data;

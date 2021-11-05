@@ -3,7 +3,7 @@
 
 //#pragma comment (lib, "ws2_32.lib")
 
-//cd "c:\Users\Manjaro\Desktop\DT065A_Project\DT065A_Project\" ; if ($?) { g++ main.cpp -o main -lws2_32 } ; if ($?) { .\main }
+// cd "c:\Users\j_c_k\Desktop\DT065A_Project\DT065A_Project\Server\" ; if ($?) { g++ main.cpp -o main -lws2_32} ; if ($?) { .\main }
 
 int main(){
     
