@@ -69,3 +69,6 @@ int main(){
     closesocket(sock);
     WSACleanup();
 }
+
+// GET /Address/ HTTP/1.1/\r\nHeader Stuff\r\n\r\nBody
+    

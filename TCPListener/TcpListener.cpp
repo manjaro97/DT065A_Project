@@ -1,3 +1,4 @@
+#include <iostream>
 #include "TCPlistener.h"
 
     CTcpListener::CTcpListener(std::string ipAddress, int port, MessageReceivedHandler handler)
@@ -35,6 +36,7 @@
             // Create a listening socket
             SOCKET listening = CreateSocket();
             if(listening == INVALID_SOCKET){
+                std::cerr << "Can't create a socket! Quitting?" << std::endl;
                 break;
             }
 
@@ -46,14 +48,23 @@
                 do{
                     ZeroMemory(buf, 4096);
                     bytesReceived = recv(client, buf, 4096, 0);
-                    if(bytesReceived > 0){
+                    if(bytesReceived == SOCKET_ERROR){
+                        std::cerr << "Error in recv(). Quitting!" << std::endl;
+                    }
+                    else if(bytesReceived > 0){
                         if(MessageReceived != NULL){
                             MessageReceived(this, client, std::string(buf, 0, bytesReceived));
                         }
                     }
+                    else{
+                        std::cerr << "User disconnected. Quitting!" << std::endl;
+                    }
                 }   while(bytesReceived > 0);
 
                 closesocket(client);
+            }
+            else{
+                std::cerr << "Client socket is invalid!" << std::endl;
             }
 
         }
