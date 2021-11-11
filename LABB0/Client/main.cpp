@@ -70,5 +70,7 @@ int main(){
     WSACleanup();
 }
 
-// GET /Address/ HTTP/1.1/\r\nHeader Stuff\r\n\r\nBody
+// POST / HTTP/1.1/\r\nHeader Stuff\r\n\r\nSensor
+// PUT /Sensor/ HTTP/1.1/\r\nHeader Stuff\r\n\r\n69
+// GET /Sensor/ HTTP/1.1/\r\nHeader Stuff\r\n\r\nBody
     
