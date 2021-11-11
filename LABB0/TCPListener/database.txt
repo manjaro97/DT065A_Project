@@ -1,5 +1,0 @@
-Hej: 23
-Pa: 21
-Dig: 45
-Body: 
-Sensor: 69

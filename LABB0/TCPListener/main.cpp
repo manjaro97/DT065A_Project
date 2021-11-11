@@ -6,7 +6,7 @@
 
 #include "TCPlistener.h"
 
-// cd "c:\Users\j_c_k\Desktop\DT065A_Project\DT065A_Project\TCPListener\" ; if ($?) { g++ main.cpp TcpListener.cpp TcpListener.h database.txt -o main -lws2_32 } ; if ($?) { .\main }
+// cd "c:\Users\Manjaro\Desktop\DT065A_Project\DT065A_Project\LABB0\TCPListener\" ; if ($?) { g++ main.cpp TcpListener.cpp TcpListener.h -o main -lws2_32 } ; if ($?) { .\main }
 
 void Listener_MessageReceived(CTcpListener* listener, int client, std::string msg);
 std::vector<std::string> SplitHeaderBody(std::string given_str, std::string delimiter);
@@ -72,10 +72,6 @@ std::vector<std::string> SplitHeaderBody(std::string given_str, std::string deli
     
     std::vector<std::string> msgSplit; 
     size_t pos = 0;
-
-    /*if(given_str.find (delimiter) == std::string::npos){
-        return msgSplit;
-    }*/
 
     while (( pos = given_str.find (delimiter)) != std::string::npos)  
     {  
@@ -152,6 +148,26 @@ std::string HandleRequest(std::string request, std::string path, std::string bod
     else if(request == "DELETE"){
         // Should be used to remove a sensor entity and its sensor value from the REST server. 
         // Return 404 if not found or 200 if successfully deleted. 
+
+        std::string pathID = path;
+        pathID.erase(remove(pathID.begin(), pathID.end(), '/'), pathID.end()); //remove A from string
+        
+        bool pathIDExists = false;
+        for(int i = 0; i < storedData.size(); i++){
+            if(storedData[i][0] == pathID){
+                pathIDExists = true;
+                //Delete storedData[i]
+                //storedData.erase(i);
+                storedData[i].erase(storedData[i].begin(),storedData[i].begin()+3);
+            }
+        }
+        if(pathIDExists == false){
+            return "409 - Error: Sensor does not exist";
+        }
+        
+        updateDatabase(storedData);
+        return "200 - Success, Deleted Sensor";
+
     }
     else{return "400 - Error: Bad Request Variable";}
 

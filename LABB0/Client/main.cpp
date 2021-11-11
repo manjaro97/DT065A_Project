@@ -2,7 +2,7 @@
 #include <string>
 #include <WS2tcpip.h>
 
-// cd "c:\Users\j_c_k\Desktop\DT065A_Project\DT065A_Project\Client\" ; if ($?) { g++ main.cpp -o main -lws2_32} ; if ($?) { .\main }
+// cd "c:\Users\Manjaro\Desktop\DT065A_Project\DT065A_Project\LABB0\Client\" ; if ($?) { g++ main.cpp -o main -lws2_32} ; if ($?) { .\main }
 
 int main(){
     
@@ -70,7 +70,8 @@ int main(){
     WSACleanup();
 }
 
-// POST / HTTP/1.1/\r\nHeader Stuff\r\n\r\nSensor
-// PUT /Sensor/ HTTP/1.1/\r\nHeader Stuff\r\n\r\n69
+// POST / HTTP/1.1/\r\nHeader Stuff\r\n\r\nSensor12
+// PUT /Sensor12/ HTTP/1.1/\r\nHeader Stuff\r\n\r\n69
 // GET /Sensor/ HTTP/1.1/\r\nHeader Stuff\r\n\r\nBody
+// DELETE /Sensor1/ HTTP/1.1/\r\nHeader Stuff\r\n\r\nBody
     
