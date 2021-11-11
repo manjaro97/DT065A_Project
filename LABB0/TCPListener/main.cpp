@@ -7,6 +7,7 @@
 #include "TCPlistener.h"
 
 // cd "c:\Users\Manjaro\Desktop\DT065A_Project\DT065A_Project\LABB0\TCPListener\" ; if ($?) { g++ main.cpp TcpListener.cpp TcpListener.h -o main -lws2_32 } ; if ($?) { .\main }
+// cd "c:\Users\j_c_k\Desktop\DT065A_Project\DT065A_Project\LABB0\TCPListener\" ; if ($?) { g++ main.cpp TcpListener.cpp TcpListener.h -o main -lws2_32 } ; if ($?) { .\main }
 
 void Listener_MessageReceived(CTcpListener* listener, int client, std::string msg);
 std::vector<std::string> SplitHeaderBody(std::string given_str, std::string delimiter);
@@ -30,9 +31,6 @@ void Listener_MessageReceived(CTcpListener* listener, int client, std::string ms
 
     std::vector<std::string> msgSplit = SplitHeaderBody(given_str, "\\r\\n\\r\\n");
     if(msgSplit.size() == 2){
-        std::cout << "Header: "<< msgSplit[0] << std::endl;
-        std::cout << "Body: " << msgSplit[1] << std::endl;
-
         std::vector<std::string> headerSplit = SplitHeaderBody(msgSplit[0], "\\r\\n");
 
         if(headerSplit.size() != 0){
@@ -45,7 +43,6 @@ void Listener_MessageReceived(CTcpListener* listener, int client, std::string ms
                 std::string requestType = requestSplit[2];
                 std::string body = msgSplit[1];
 
-                std::cout << "Before HandleRequest" << std::endl;
                 responseMsg = HandleRequest(request, path, body);
             }
             else{
@@ -149,6 +146,7 @@ std::string HandleRequest(std::string request, std::string path, std::string bod
         // Should be used to remove a sensor entity and its sensor value from the REST server. 
         // Return 404 if not found or 200 if successfully deleted. 
 
+        std::vector<std::vector<std::string>> dataCopy;
         std::string pathID = path;
         pathID.erase(remove(pathID.begin(), pathID.end(), '/'), pathID.end()); //remove A from string
         
@@ -156,16 +154,19 @@ std::string HandleRequest(std::string request, std::string path, std::string bod
         for(int i = 0; i < storedData.size(); i++){
             if(storedData[i][0] == pathID){
                 pathIDExists = true;
-                //Delete storedData[i]
-                //storedData.erase(i);
-                storedData[i].erase(storedData[i].begin(),storedData[i].begin()+3);
+            }
+            else{
+                dataCopy.push_back(std::vector<std::string>());
+                dataCopy[dataCopy.size()-1].push_back(storedData[i][0]);
+                dataCopy[dataCopy.size()-1].push_back(storedData[i][1]);
+                dataCopy[dataCopy.size()-1].push_back(storedData[i][2]);
             }
         }
         if(pathIDExists == false){
             return "409 - Error: Sensor does not exist";
         }
         
-        updateDatabase(storedData);
+        updateDatabase(dataCopy);
         return "200 - Success, Deleted Sensor";
 
     }
