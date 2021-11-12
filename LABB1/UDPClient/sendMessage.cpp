@@ -23,7 +23,7 @@ std::string sendMessage(std::string msg){  // We can pass in a command lline opt
     // Create a hint structure for the server
     sockaddr_in server;
     server.sin_family = AF_INET;
-    server.sin_port = htons(54000);
+    server.sin_port = htons(5683);
 
     inet_pton(AF_INET, "127.0.0.1", &server.sin_addr);
 

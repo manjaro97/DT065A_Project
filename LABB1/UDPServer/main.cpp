@@ -39,7 +39,7 @@ int main(){
     //set address family
     hint.sin_family = AF_INET;
     //set port by host-to-network-short
-    hint.sin_port = htons(54000);
+    hint.sin_port = htons(5683);
     //bind to Any address
     hint.sin_addr.S_un.S_addr = ADDR_ANY; 
 
