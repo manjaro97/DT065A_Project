@@ -137,21 +137,24 @@ std::vector<char> toCoAP(std::vector<std::string> inputMsg){
     }
 
     // Option length
-    if(inputMsg[5].length() >= 0){
-        msgCoAP.push_back('0');
-        msgCoAP.push_back('1');
-        msgCoAP.push_back('0');
-        msgCoAP.push_back('0');
-    }
 
     // Option Delta (extended)
 
     // Option length (extended) 
 
     // Option Value
-    std::string path = inputMsg[5];
-    
 
+    // End Header
+    msgCoAP.push_back('1');
+    msgCoAP.push_back('1');
+    msgCoAP.push_back('1');
+    msgCoAP.push_back('1');
+    msgCoAP.push_back('1');
+    msgCoAP.push_back('1');
+    msgCoAP.push_back('1');
+    msgCoAP.push_back('1');
+
+    // Body Conversion
 
     return msgCoAP;
 }
