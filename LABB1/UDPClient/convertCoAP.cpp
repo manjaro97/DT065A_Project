@@ -1,4 +1,5 @@
 #include <iostream>
+#include <bitset>
 #include "convertCoAP.h"
 
 std::vector<char> toCoAP(std::vector<std::string> inputMsg){
@@ -137,12 +138,27 @@ std::vector<char> toCoAP(std::vector<std::string> inputMsg){
     }
 
     // Option length
+    int optionlength = inputMsg[5].length();
+    std::string s = std::bitset< 4 >( optionlength ).to_string();
+    for(char b: s){
+        msgCoAP.push_back(b);
+    }
 
     // Option Delta (extended)
 
     // Option length (extended) 
 
     // Option Value
+    std::string str1 = inputMsg[5];
+    std::vector<char> charBody1(str1.begin(), str1.end());
+    std::string bitStr1;
+
+    for(char c: charBody1){
+        bitStr1 = std::bitset<8>(c).to_string();
+        for(char b: bitStr1){
+            msgCoAP.push_back(b);
+        }
+    }
 
     // End Header
     msgCoAP.push_back('1');
@@ -155,10 +171,23 @@ std::vector<char> toCoAP(std::vector<std::string> inputMsg){
     msgCoAP.push_back('1');
 
     // Body Conversion
+    std::string str2 = inputMsg[6];
+    std::vector<char> charBody2(str2.begin(), str2.end());
+    std::string bitStr2;
+
+    for(char c: charBody2){
+        bitStr2 = std::bitset<8>(c).to_string();
+        for(char b: bitStr2){
+            msgCoAP.push_back(b);
+        }
+    }
 
     return msgCoAP;
 }
 
 std::vector<std::string> fromCoAP(std::vector<char>){
+    std::vector<std::string> test;
+    return test;
 
 }
+
