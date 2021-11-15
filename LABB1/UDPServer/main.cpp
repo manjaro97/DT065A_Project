@@ -1,9 +1,10 @@
 #include <iostream>
+#include "convertCoAP.h"
 #include <WS2tcpip.h>
 
 //#pragma comment (lib, "ws2_32.lib")
 
-// cd "C:\Users\j_c_k\Desktop\DT065A_Project\DT065A_Project\LABB1\UDPServer\" ; if ($?) { g++ main.cpp -o main -lws2_32} ; if ($?) { .\main }
+// cd "C:\Users\j_c_k\Desktop\DT065A_Project\DT065A_Project\LABB1\UDPServer\" ; if ($?) { g++ main.cpp convertCoAP.h convertCoAP.cpp -o main -lws2_32} ; if ($?) { .\main }
 
 int main(){
     
@@ -77,6 +78,14 @@ int main(){
 
         std::cout << "Message recv from " << clientIp << " : " << buf << std::endl;
         
+        std::string s = "";
+        for (char c: buf){
+            s += c;
+        }
+        std::vector<std::string> translatedMsg = fromCoAP(s);
+        for(std::string s : translatedMsg){
+            std::cout << "Received Message: " << s << std::endl;
+        }
     }
 
     // Close listening socket

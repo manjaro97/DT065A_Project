@@ -235,8 +235,6 @@ std::vector<std::string> fromCoAP(std::string receivedMsg){
     std::string headerEnd = receivedMsg.substr(0, 8);
     receivedMsg.erase(0, 8);
 
-    std::cout << "Header End: " << headerEnd << std::endl;
-
     //Convert Payload
     msgVec.push_back(binToText(receivedMsg));
     

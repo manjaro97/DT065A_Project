@@ -56,19 +56,9 @@ int main(){
         tester.push_back(Payload); // Payload
         //----------------------------------
 
-        std::vector<char> msgCoAP = toCoAP(tester);
+        std::string msgCoAP = toCoAP(tester);
 
-        std::cout << std::endl << std::endl << "Binary code:" << std::endl;
-        std::string msgCoAPstr = "";
-        for(char c: msgCoAP){
-            std::cout << c;
-            msgCoAPstr = msgCoAPstr + c;
-        }
-        std::cout << std::endl << std::endl;
-
-
-
-        std::cout << sendMessage(msgCoAPstr) << std::endl;
+        std::cout << sendMessage(msgCoAP) << std::endl;
     }
 
 }
