@@ -5,6 +5,7 @@
 //#pragma comment (lib, "ws2_32.lib")
 
 // cd "C:\Users\j_c_k\Desktop\DT065A_Project\DT065A_Project\LABB1\UDPServer\" ; if ($?) { g++ main.cpp convertCoAP.h convertCoAP.cpp -o main -lws2_32} ; if ($?) { .\main }
+// cd "C:\Users\Manjaro\Desktop\DT065A_Project\DT065A_Project\LABB1\UDPServer\" ; if ($?) { g++ main.cpp convertCoAP.h convertCoAP.cpp -o main -lws2_32} ; if ($?) { .\main }
 
 int main(){
     

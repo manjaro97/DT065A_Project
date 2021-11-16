@@ -4,7 +4,7 @@
 
 //#pragma comment (lib, "ws2_32.lib")
 
-std::string sendMessage(std::string msg){  // We can pass in a command lline option!!
+std::string sendMessage(char msg[]){  // We can pass in a command lline option!!
     
 
     // Initialize winsock
@@ -25,18 +25,20 @@ std::string sendMessage(std::string msg){  // We can pass in a command lline opt
     server.sin_family = AF_INET;
     server.sin_port = htons(5683);
 
-    inet_pton(AF_INET, "127.0.0.1", &server.sin_addr);
+    inet_pton(AF_INET, "134.102.218.18", &server.sin_addr);
 
     // Socket creation
     SOCKET out = socket(AF_INET, SOCK_DGRAM,0);
 
     // Write out to that socket
-    int sendOk = sendto(out, msg.c_str(), msg.size() + 1, 0, (sockaddr*)&server, sizeof(server));
+    int sendOk = sendto(out, msg, 1024, 0, (sockaddr*)&server, sizeof(server));
 
     if(sendOk == SOCKET_ERROR){
         std::cerr << "Message was not sent " << WSAGetLastError() << std::endl;
         return "Error";
     }
+
+    int receive = recv
 
     // Close the socket
     closesocket(out);

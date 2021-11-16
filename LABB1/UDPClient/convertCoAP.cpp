@@ -125,6 +125,7 @@ std::string toCoAP(std::vector<std::string> inputMsg){
     }
 
     return msgCoAPstr;
+
 }
 
 std::vector<std::string> fromCoAP(std::string receivedMsg){

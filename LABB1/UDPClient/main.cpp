@@ -1,9 +1,12 @@
 #include <iostream>
 #include <string>
+#include <bitset>
+#include <sstream>
 #include "sendMessage.h"
 #include "convertCoAP.h"
 
 // cd "C:\Users\j_c_k\Desktop\DT065A_Project\DT065A_Project\LABB1\UDPClient\" ; if ($?) { g++ main.cpp sendMessage.cpp sendMessage.h convertCoAP.cpp convertCoAP.h -o main -lws2_32} ; if ($?) { .\main }
+// cd "C:\Users\Manjaro\Desktop\DT065A_Project\DT065A_Project\LABB1\UDPClient\" ; if ($?) { g++ main.cpp sendMessage.cpp sendMessage.h convertCoAP.cpp convertCoAP.h -o main -lws2_32} ; if ($?) { .\main }
 
 int main(){
 
@@ -45,7 +48,7 @@ int main(){
         
         std::string OptionValue = "/path/";
         std::cout << "Option Value (standard /path/): ";
-        std::getline(std::cin, OptionDelta);
+        std::getline(std::cin, OptionValue);
         //OptionValue is [5]
         tester.push_back(OptionValue); // Options
         
@@ -58,7 +61,13 @@ int main(){
 
         std::string msgCoAP = toCoAP(tester);
 
-        std::cout << sendMessage(msgCoAP) << std::endl;
+        char byteArray[1024];
+        for(int i = 0; i < msgCoAP.length()/8; i++){
+            byteArray[i] = binToDec(msgCoAP.substr(i*8, 8));
+            std::cout << "Byte Number: " << i << ", input value: " << byteArray[i] << std::endl;
+        }
+
+        std::cout << sendMessage(byteArray) << std::endl;
     }
 
 }

@@ -3,6 +3,6 @@
 
 #include <string>
 
-std::string sendMessage(std::string msg);
+std::string sendMessage(char msg[]);
 
 #endif
