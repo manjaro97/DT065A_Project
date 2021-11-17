@@ -59,15 +59,8 @@ int main(){
         tester.push_back(Payload); // Payload
         //----------------------------------
 
-        std::string msgCoAP = toCoAP(tester);
+        std::cout << sendMessage(toCoAP(tester)) << std::endl;
 
-        char byteArray[1024];
-        for(int i = 0; i < msgCoAP.length()/8; i++){
-            byteArray[i] = binToDec(msgCoAP.substr(i*8, 8));
-            std::cout << "Byte Number: " << i << ", input value: " << byteArray[i] << std::endl;
-        }
-
-        std::cout << sendMessage(byteArray) << std::endl;
     }
 
 }

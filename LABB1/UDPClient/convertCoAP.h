@@ -4,9 +4,9 @@
 #include <string>
 #include <vector>
 
-std::string toCoAP(std::vector<std::string>);
+std::vector<char> toCoAP(std::vector<std::string>);
 
-std::vector<std::string> fromCoAP(std::string);
+std::vector<std::string> fromCoAP(std::vector<char>);
 
 int binToDec(std::string);
 

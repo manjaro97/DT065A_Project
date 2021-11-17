@@ -1,10 +1,12 @@
 #include <iostream>
 #include <WS2tcpip.h>
+
 #include <string>
+#include <vector>
 
 //#pragma comment (lib, "ws2_32.lib")
 
-std::string sendMessage(char msg[]){  // We can pass in a command lline option!!
+std::string sendMessage(std::vector<char> msg){  // We can pass in a command lline option!!
     
 
     // Initialize winsock
@@ -31,14 +33,12 @@ std::string sendMessage(char msg[]){  // We can pass in a command lline option!!
     SOCKET out = socket(AF_INET, SOCK_DGRAM,0);
 
     // Write out to that socket
-    int sendOk = sendto(out, msg, 1024, 0, (sockaddr*)&server, sizeof(server));
+    int sendOk = sendto(out, msg.data(), msg.size(), 0, (sockaddr*)&server, sizeof(server));
 
     if(sendOk == SOCKET_ERROR){
         std::cerr << "Message was not sent " << WSAGetLastError() << std::endl;
         return "Error";
     }
-
-    int receive = recv
 
     // Close the socket
     closesocket(out);
