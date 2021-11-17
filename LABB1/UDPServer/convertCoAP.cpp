@@ -8,7 +8,7 @@ std::string binToText(std::string str);
 std::string fromCoAPoptionDelta(std::string delta);
 std::string toCoAPoptionDelta(std::string delta);
 
-std::string toCoAP(std::vector<std::string> inputMsg){
+std::vector<char> toCoAP(std::vector<std::string> inputMsg){
     
     std::string msgCoAPstr = "";
 
@@ -18,7 +18,6 @@ std::string toCoAP(std::vector<std::string> inputMsg){
     }
     else{
         std::cout << "ERROR: Invalid Version" << std::endl;
-        return "ERROR";
     }
 
     // Message type conversion
@@ -36,7 +35,6 @@ std::string toCoAP(std::vector<std::string> inputMsg){
     }
     else{
         std::cout << "ERROR: Invalid Message Type T" << std::endl;
-        return "ERROR";
     }
 
     // TKL conversion
@@ -62,7 +60,6 @@ std::string toCoAP(std::vector<std::string> inputMsg){
     } 
     else{
         std::cout << "ERROR: Token to Large" << std::endl;
-        return "ERROR";
     }
 
     // Request Code Conversion
@@ -83,7 +80,6 @@ std::string toCoAP(std::vector<std::string> inputMsg){
     }
     else{
         std::cout << "ERROR: Invalid Request" << std::endl;
-        return "ERROR";
     }
 
     //Create Random MEssage ID
@@ -99,7 +95,6 @@ std::string toCoAP(std::vector<std::string> inputMsg){
     }
     else{
         std::cout << "ERROR: Invalid Option Delta" << std::endl;
-        return "ERROR";
     }
 
     // Option length
@@ -124,10 +119,22 @@ std::string toCoAP(std::vector<std::string> inputMsg){
         msgCoAPstr += std::bitset<8>(c).to_string();
     }
 
-    return msgCoAPstr;
+    std::vector<char> byteVector;
+    for(int i = 0; i < msgCoAPstr.length()/8; i++){
+        byteVector.push_back(binToDec(msgCoAPstr.substr(i*8, 8)));
+    }
+
+    return byteVector;
+
 }
 
-std::vector<std::string> fromCoAP(std::string receivedMsg){
+std::vector<std::string> fromCoAP(std::vector<char> msg){
+    std::string receivedMsg;
+
+    for(char c: msg){
+        receivedMsg += std::bitset<8>(c).to_string();
+    }
+
     std::vector<std::string> msgVec;
     
     //Convert Version
@@ -234,6 +241,8 @@ std::vector<std::string> fromCoAP(std::string receivedMsg){
     //Find Header End
     std::string headerEnd = receivedMsg.substr(0, 8);
     receivedMsg.erase(0, 8);
+
+    std::cout << "Header End: " << headerEnd << std::endl;
 
     //Convert Payload
     msgVec.push_back(binToText(receivedMsg));

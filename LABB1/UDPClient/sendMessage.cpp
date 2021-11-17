@@ -40,6 +40,17 @@ std::string sendMessage(std::vector<char> msg){  // We can pass in a command lli
         return "Error";
     }
 
+    int serverLength = sizeof(server);
+    char buf[1024];
+
+    while(true){
+        int bytesReceived = recvfrom(out, buf, 1024, 0, (sockaddr*)&server, &serverLength);
+        if(bytesReceived == SOCKET_ERROR){
+            std::cerr << "Error in recvfrom(). Quitting!" << std::endl;
+            break;
+        }
+    }
+
     // Close the socket
     closesocket(out);
 

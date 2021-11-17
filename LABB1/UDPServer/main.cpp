@@ -79,13 +79,14 @@ int main(){
 
         std::cout << "Message recv from " << clientIp << " : " << buf << std::endl;
         
-        std::string s = "";
+        std::vector<char> receivedMsg;
         for (char c: buf){
-            s += c;
+            receivedMsg.push_back(c);
         }
-        std::vector<std::string> translatedMsg = fromCoAP(s);
-        for(std::string s : translatedMsg){
-            std::cout << "Received Message: " << s << std::endl;
+        
+        std::vector<std::string> translatedMsg = fromCoAP(receivedMsg);
+        for(std::string s1 : translatedMsg){
+            std::cout << "Received Message: " << s1 << std::endl;
         }
     }
 
