@@ -4,6 +4,6 @@
 #include <string>
 #include <vector>
 
-std::string sendMessage(std::vector<char>);
+std::vector<char> sendMessage(std::vector<char>);
 
 #endif

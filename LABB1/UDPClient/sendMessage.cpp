@@ -6,7 +6,7 @@
 
 //#pragma comment (lib, "ws2_32.lib")
 
-std::string sendMessage(std::vector<char> msg){  // We can pass in a command lline option!!
+std::vector<char> sendMessage(std::vector<char> msg){  // We can pass in a command lline option!!
     
 
     // Initialize winsock
@@ -19,7 +19,6 @@ std::string sendMessage(std::vector<char> msg){  // We can pass in a command lli
     //WSAStartup returns 0 if successful and other errorcodes if not
     if(wsOK != 0){
         std::cout  << "Error: " << wsOK << "Can't initialize winsock! Quitting!" << std::endl;
-        return "Error";
     }
 
     // Create a hint structure for the server
@@ -37,19 +36,21 @@ std::string sendMessage(std::vector<char> msg){  // We can pass in a command lli
 
     if(sendOk == SOCKET_ERROR){
         std::cerr << "Message was not sent " << WSAGetLastError() << std::endl;
-        return "Error";
     }
 
     int serverLength = sizeof(server);
     char buf[1024];
+    std::vector<char> receivedMsg;
+    int bytesReceived = 0;
 
-    while(true){
-        int bytesReceived = recvfrom(out, buf, 1024, 0, (sockaddr*)&server, &serverLength);
-        if(bytesReceived == SOCKET_ERROR){
-            std::cerr << "Error in recvfrom(). Quitting!" << std::endl;
-            break;
-        }
+    bytesReceived = recvfrom(out, buf, 1024, 0, (sockaddr*)&server, &serverLength);
+    if(bytesReceived == SOCKET_ERROR){
+        std::cerr << "Error in recvfrom(). Quitting!" << std::endl;
     }
+        
+    for (char c: buf){
+        receivedMsg.push_back(c);
+    }    
 
     // Close the socket
     closesocket(out);
@@ -57,5 +58,5 @@ std::string sendMessage(std::vector<char> msg){  // We can pass in a command lli
     // Close down Winsock
     WSACleanup();
 
-    return "Success";
+    return receivedMsg;
 }

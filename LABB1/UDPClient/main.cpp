@@ -59,7 +59,11 @@ int main(){
         tester.push_back(Payload); // Payload
         //----------------------------------
 
-        std::cout << sendMessage(toCoAP(tester)) << std::endl;
+        std::vector<char> returnMsg = sendMessage(toCoAP(tester));
+        std::vector<std::string> s = fromCoAP(returnMsg);
+        for (std::string str : s){
+            std::cout << str << std::endl;
+        }
 
     }
 
