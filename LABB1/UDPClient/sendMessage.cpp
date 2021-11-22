@@ -39,18 +39,19 @@ std::vector<char> sendMessage(std::vector<char> msg){  // We can pass in a comma
     }
 
     int serverLength = sizeof(server);
-    char buf[1024];
+    char buf[65535];
+    //std::vector<char> buf;
     std::vector<char> receivedMsg;
     int bytesReceived = 0;
 
-    bytesReceived = recvfrom(out, buf, 1024, 0, (sockaddr*)&server, &serverLength);
+    bytesReceived = recvfrom(out, buf, 65535, 0, (sockaddr*)&server, &serverLength);
     if(bytesReceived == SOCKET_ERROR){
         std::cerr << "Error in recvfrom(). Quitting!" << std::endl;
     }
         
-    for (char c: buf){
-        receivedMsg.push_back(c);
-    }    
+    for(int i = 0; i < bytesReceived; i++){
+        receivedMsg.push_back(buf[i]);
+    }       
 
     // Close the socket
     closesocket(out);

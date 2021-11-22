@@ -14,17 +14,16 @@ int main(){
     while(true){
         //Test 
         std::vector<std::string> tester;
-
         
         std::string ver = "1";
-        std::cout << "CoAP Version (standard 1): ";
-        std::getline(std::cin, ver);
+        //std::cout << "CoAP Version (standard 1): ";
+        //std::getline(std::cin, ver);
         //Ver is [0]
         tester.push_back(ver); // CoAP version: (01) is version 1
 
         std::string T = "NON";
-        std::cout << "Message Type (standard NON): ";
-        std::getline(std::cin, T);
+        //std::cout << "Message Type (standard NON): ";
+        //std::getline(std::cin, T);
         //T is [1]
         tester.push_back(T); // Message type: CON (00), NON (01), ACK (10) and RST (11)
         
@@ -35,14 +34,14 @@ int main(){
         tester.push_back(code); // Method: Empty (0000 0000), GET (0000 0001), POST (0000 0010), PUT (0000 0011), DELETE (0000 0100)
         
         std::string Token = "";
-        std::cout << "Token (standard null): ";
-        std::getline(std::cin, Token);
+        //std::cout << "Token (standard null): ";
+        //std::getline(std::cin, Token);
         //Token is [3]
         tester.push_back(Token); // Token
         
         std::string OptionDelta = "Uri-Path";
-        std::cout << "Option delta (standard Uri-Path): ";
-        std::getline(std::cin, OptionDelta);
+        //std::cout << "Option delta (standard Uri-Path): ";
+        //std::getline(std::cin, OptionDelta);
         //OptionDelta is [4]
         tester.push_back(OptionDelta); // Options
         
@@ -58,6 +57,8 @@ int main(){
         //Payload is [6]
         tester.push_back(Payload); // Payload
         //----------------------------------
+        std::cout << "\n\n";
+
 
         std::vector<char> returnMsg = sendMessage(toCoAP(tester));
         std::vector<std::string> s = fromCoAP(returnMsg);

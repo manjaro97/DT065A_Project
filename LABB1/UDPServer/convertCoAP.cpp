@@ -110,13 +110,15 @@ std::vector<char> toCoAP(std::vector<std::string> inputMsg){
         msgCoAPstr += std::bitset<8>(c).to_string();
     }
 
-    // End Header
-    msgCoAPstr += "11111111";
+    if(inputMsg[6].size() != 0){
+        // End Header
+        msgCoAPstr += "11111111";
 
-    // Body Conversion
-    std::vector<char> bodyChar(inputMsg[6].begin(), inputMsg[6].end());
-    for(char c: bodyChar){
-        msgCoAPstr += std::bitset<8>(c).to_string();
+        // Body Conversion
+        std::vector<char> bodyChar(inputMsg[6].begin(), inputMsg[6].end());
+        for(char c: bodyChar){
+            msgCoAPstr += std::bitset<8>(c).to_string();
+        }
     }
 
     std::vector<char> byteVector;
@@ -213,36 +215,116 @@ std::vector<std::string> fromCoAP(std::vector<char> msg){
         msgVec.push_back(token);
     }
 
-    //Convert Option Delta
-    std::string optionDelta = receivedMsg.substr(0, 4);
-    receivedMsg.erase(0, 4);
-
-    std::string delta = fromCoAPoptionDelta(optionDelta);
-
-    if(delta != "ERROR"){
-        msgVec.push_back(delta);
-    }
-    else{
-        msgVec.push_back("Bad_OptionDelta");
-    }
-
-    //Convert Option Length
-    std::string optionLength = receivedMsg.substr(0, 4);
-    receivedMsg.erase(0, 4);
-
-    int optionLen = binToDec(optionLength);
-
-    //Convert Option Value
-    std::string optionValue = receivedMsg.substr(0, optionLen * 8);
-    receivedMsg.erase(0, optionLen * 8);
-
-    msgVec.push_back(binToText(optionValue));
-
     //Find Header End
     std::string headerEnd = receivedMsg.substr(0, 8);
-    receivedMsg.erase(0, 8);
 
-    std::cout << "Header End: " << headerEnd << std::endl;
+    //Preset Option Delta
+    std::string optionDelta = "0000";
+
+    //Loop Options
+    while(headerEnd != "11111111"){
+        //Convert Option Delta
+
+        optionDelta = std::bitset<4>(binToDec(optionDelta) + binToDec(receivedMsg.substr(0, 4))).to_string();
+
+        receivedMsg.erase(0, 4);
+        std::string delta;
+        int extendedOptionDelta = 0;
+
+        if(optionDelta == "1101"){
+            extendedOptionDelta = 1;
+            delta = "Option Delta extended 1 Byte";
+        }
+        else if(optionDelta == "1110"){
+            extendedOptionDelta = 2;
+            delta = "Option Delta extended 2 Bytes";
+        }
+        else if(optionDelta == "1111"){
+            delta = "MESSAGE FORMAT ERROR";
+        }
+        else{
+            delta = fromCoAPoptionDelta(optionDelta);
+        }
+
+        if(delta != "ERROR"){
+            msgVec.push_back(delta);
+        }
+        else{
+            msgVec.push_back("Bad_OptionDelta");
+        }
+
+        //Convert Option Length
+        std::string optionLength = receivedMsg.substr(0, 4);
+        receivedMsg.erase(0, 4);
+
+        int optionLen;
+        std::string optionLenMsg;
+        int extendedOptionLength = 0;
+
+        if(optionDelta == "1101"){
+            extendedOptionLength = 1;
+            optionLenMsg = "Option Delta extended 1 Byte";
+            msgVec.push_back("optionLenMsg");
+        }
+        else if(optionDelta == "1110"){
+            extendedOptionLength = 2;
+            optionLenMsg = "Option Delta extended 2 Bytes";
+            msgVec.push_back("optionLenMsg");
+        }
+        else if(optionDelta == "1111"){
+            optionLenMsg = "MESSAGE FORMAT ERROR";
+            msgVec.push_back("optionLenMsg");
+        }
+        else{
+            optionLen = binToDec(optionLength);
+        }
+
+        //Convert Option Delta Extended
+
+        if(extendedOptionDelta == 1){
+            std::string optionDeltaExt = receivedMsg.substr(0, 8);
+            receivedMsg.erase(0, 8);
+
+            if(delta != "ERROR"){
+                msgVec.push_back(delta);
+            }
+            else{
+                msgVec.push_back("Bad_OptionDelta");
+            }
+
+        }
+        else if(extendedOptionDelta == 2){
+            std::string optionDeltaExt = receivedMsg.substr(0, 16);
+            receivedMsg.erase(0, 16);
+        }
+
+        //Convert Option Length Extended
+        if(extendedOptionLength == 1){
+            std::string optionLengthExt = receivedMsg.substr(0, 8);
+            receivedMsg.erase(0, 8);
+
+            optionLen = binToDec(optionLengthExt);
+        }
+        else if(extendedOptionLength == 2){
+            std::string optionLengthExt = receivedMsg.substr(0, 16);
+            receivedMsg.erase(0, 16);
+
+            optionLen = binToDec(optionLengthExt);
+        }
+
+        //Convert Option Value
+        std::string optionValue = receivedMsg.substr(0, optionLen * 8);
+        receivedMsg.erase(0, optionLen * 8);
+
+        msgVec.push_back(binToText(optionValue));
+
+        //Find Header End
+        headerEnd = receivedMsg.substr(0, 8);
+    }
+
+    msgVec.push_back("Header ending at: " + receivedMsg.substr(0, 8));
+
+    receivedMsg.erase(0, 8);
 
     //Convert Payload
     msgVec.push_back(binToText(receivedMsg));
