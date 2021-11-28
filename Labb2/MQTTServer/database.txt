@@ -1,0 +1,3 @@
+Sensor12: 5
+SensorKing: 69
+Sensor: 123
