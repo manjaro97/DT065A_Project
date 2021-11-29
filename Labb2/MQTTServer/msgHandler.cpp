@@ -3,6 +3,7 @@
 #include <iostream>
 #include <fstream>
 #include <algorithm>
+#include <bitset>
 
 std::vector<std::string> SplitHeader(std::string given_str){
     std::vector<std::string> headerSplit; 
@@ -17,24 +18,9 @@ std::vector<std::string> SplitHeader(std::string given_str){
     return headerSplit;
 }
 
-int binToDec(std::string binNum){
-    long bin, dec = 0, rem, num, base = 1;
-    num = std::stoi(binNum);
-    bin = num;
-    while (num > 0)
-    {
-        rem = num % 10;
-        dec = dec + rem * base;
-        base = base * 2;
-        num = num / 10;
-    }
-    //std::cout << "The decimal equivalent of " << bin << " : " << dec << std::endl;
-    return dec;
-}
-
 std::string HandleRequest(std::string request, std::string given_str){
 
-    int requestNr = binToDec(request);
+    int requestNr = std::bitset<16>(request).to_ulong();
 
     switch(requestNr){
         case 0:
