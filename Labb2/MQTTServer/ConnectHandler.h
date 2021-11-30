@@ -1,9 +1,13 @@
 #ifndef CONNECTHANDLER_H
 #define CONNECTHANDLER_H
 
-void DecodeConnect();
+#include "TCPlistener.h"
 
-void SendConnAck();
+#include <string>
+
+std::vector<char> DecodeConnect(std::string msg);
+
+std::vector<char> SendConnAck();
 
 void DecodeDisconnect();
 

@@ -1,5 +1,7 @@
 #include "msgHandler.h"
 
+#include "ConnectHandler.h"
+
 #include <iostream>
 #include <fstream>
 #include <algorithm>
@@ -9,18 +11,13 @@ std::vector<std::string> SplitHeader(std::string given_str){
     std::vector<std::string> headerSplit; 
 
     headerSplit.push_back(given_str.substr(0, 4)); // store the substring
-    headerSplit.push_back(given_str.substr(4, 1)); // store the substring
-    headerSplit.push_back(given_str.substr(5, 2)); // store the substring
-    headerSplit.push_back(given_str.substr(7, 1)); // store the substring
-    headerSplit.push_back(given_str.substr(8, 8)); // store the substring
-
 
     return headerSplit;
 }
 
-std::string HandleRequest(std::string request, std::string given_str){
-
-    int requestNr = std::bitset<16>(request).to_ulong();
+std::vector<char> HandleRequest(std::string msgType, std::string given_str){
+    std::vector<char> returnMsg;
+    int requestNr = std::bitset<16>(msgType).to_ulong();
 
     switch(requestNr){
         case 0:
@@ -28,7 +25,8 @@ std::string HandleRequest(std::string request, std::string given_str){
             break;
         case 1:
             //CONNECT
-
+            std::cout << "------------------" << std::endl;
+            returnMsg = DecodeConnect(given_str);
             //After a Network Connection is established by a Client to a Server, the first packet sent from the Client to
             //the Server MUST be a CONNECT packet.
             //A Client can only send the CONNECT packet once over a Network Connection. The Server MUST
@@ -150,7 +148,7 @@ std::string HandleRequest(std::string request, std::string given_str){
             break;
     }
 
-    return "TEST";
+    return returnMsg;
 }
 
 /*

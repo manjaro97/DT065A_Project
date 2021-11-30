@@ -7,12 +7,12 @@
 // cd "c:\Users\Manjaro\Desktop\DT065A_Project\DT065A_Project\LABB2\MQTTClient\" ; if ($?) { g++ main.cpp -o main -lws2_32} ; if ($?) { .\main }
 // cd "c:\Users\j_c_k\Desktop\DT065A_Project\DT065A_Project\LABB2\MQTTClient\" ; if ($?) { g++ main.cpp -o main -lws2_32} ; if ($?) { .\main }
 
-std::vector<char> TextToBinChars(std::string str);
+std::vector<char> SendConnect();
 
 int main(){
     
     std::string ipAdress = "127.0.0.1";
-    int port = 54010;
+    int port = 1883;
 
     // Initialize WinSock
     WSAData data;
@@ -55,11 +55,7 @@ int main(){
         std::cout << "> ";
         std::getline(std::cin, userInput);
 
-        std::vector<char> sendReady = TextToBinChars(userInput);
-        for(char c: sendReady){
-            std::cout << c;
-        }
-        std::cout << std::endl;
+        std::vector<char> sendReady = SendConnect();
 
         std::string receivedMsg;
 
@@ -83,26 +79,31 @@ int main(){
     closesocket(sock);
     WSACleanup();
 }
+    
+std::vector<char> SendConnect(){
 
+    std::vector<std::string> s1;
+        
+    s1.push_back("00010000");//Header
+    s1.push_back("00001010");//Length of rest
+    s1.push_back("00000000");//Length MSB
+    s1.push_back("00000100");//Length LSB
+    s1.push_back("01001101");//M
+    s1.push_back("01010001");//Q
+    s1.push_back("01010100");//T
+    s1.push_back("01010100");//T
+    s1.push_back("00000101");//Version 5
+    s1.push_back("00000000");//Connect Flags
+    s1.push_back("00000000");//Keep Alive MSB
+    s1.push_back("00000000");//Keep Alive LSB
 
-std::vector<char> TextToBinChars(std::string str){
-    std::string msgStr = "";
-
-    std::vector<char> bodyChar(str.begin(), str.end());
-    for(char c: bodyChar){
-        msgStr += std::bitset<8>(c).to_string();
-    }
-
-    std::vector<char> sendReady;
-    for(char c: msgStr){
-        sendReady.push_back(c);
+    std::vector<char> sendReady; 
+    for(std::string s: s1){
+        for(char c: s){
+            sendReady.push_back(c);
+        }
     }
 
     return sendReady;
-}
 
-// POST / HTTP/1.1/\r\nHeader Stuff\r\n\r\nSensor
-// PUT /Sensor/ HTTP/1.1/\r\nHeader Stuff\r\n\r\n69
-// GET /Sensor/ HTTP/1.1/\r\nHeader Stuff\r\n\r\nBody
-// DELETE /Sensor/ HTTP/1.1/\r\nHeader Stuff\r\n\r\nBody
-    
+}

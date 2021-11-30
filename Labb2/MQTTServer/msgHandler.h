@@ -6,7 +6,7 @@
 
 std::vector<std::string> SplitHeader(std::string given_str);
 
-std::string HandleRequest(std::string request, std::string given_str);
+std::vector<char> HandleRequest(std::string msgType, std::string given_str);
 
 std::vector<std::vector<std::string>> readDatabase();
 
