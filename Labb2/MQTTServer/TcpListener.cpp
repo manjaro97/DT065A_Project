@@ -12,8 +12,8 @@
     }
 
     // Send message back to client
-    void CTcpListener::Send(int clientSocket, std::string msg){
-        send(clientSocket, msg.c_str(), msg.size() +1, 0);
+    void CTcpListener::Send(int clientSocket, std::vector<char> msg){
+        send(clientSocket, msg.data(), msg.size(), 0);
     }
 
     // Initialize winsock   
@@ -29,7 +29,7 @@
 
     // Loop
     void CTcpListener::Run(){
-        char buf[4096];
+        char buf[65535];
 
         while(true){
 
@@ -45,15 +45,17 @@
                 closesocket(listening);
 
                 int bytesReceived = 0;
+                std::string receivedMsg;
                 do{
-                    ZeroMemory(buf, 4096);
-                    bytesReceived = recv(client, buf, 4096, 0);
+                    ZeroMemory(buf, 65535);
+                    bytesReceived = recv(client, buf, 65535, 0);
                     if(bytesReceived == SOCKET_ERROR){
                         std::cerr << "Error in recv(). Quitting!" << std::endl;
                     }
                     else if(bytesReceived > 0){
                         if(MessageReceived != NULL){
-                            MessageReceived(this, client, std::string(buf, 0, bytesReceived));
+                            receivedMsg = buf;
+                            MessageReceived(this, client, std::string(receivedMsg, 0, bytesReceived));
                         }
                     }
                     else{

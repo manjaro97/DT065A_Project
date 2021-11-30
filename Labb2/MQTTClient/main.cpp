@@ -1,9 +1,13 @@
 #include <iostream>
 #include <string>
+#include <bitset>
+#include <vector>
 #include <WS2tcpip.h>
 
 // cd "c:\Users\Manjaro\Desktop\DT065A_Project\DT065A_Project\LABB2\MQTTClient\" ; if ($?) { g++ main.cpp -o main -lws2_32} ; if ($?) { .\main }
 // cd "c:\Users\j_c_k\Desktop\DT065A_Project\DT065A_Project\LABB2\MQTTClient\" ; if ($?) { g++ main.cpp -o main -lws2_32} ; if ($?) { .\main }
+
+std::vector<char> TextToBinChars(std::string str);
 
 int main(){
     
@@ -42,7 +46,7 @@ int main(){
     }
 
     // Do-while loop to send and receive data
-    char buf[4096];
+    char buf[65535];
     std::string userInput;
 
     do
@@ -51,16 +55,25 @@ int main(){
         std::cout << "> ";
         std::getline(std::cin, userInput);
 
+        std::vector<char> sendReady = TextToBinChars(userInput);
+        for(char c: sendReady){
+            std::cout << c;
+        }
+        std::cout << std::endl;
+
+        std::string receivedMsg;
+
         if(userInput.size() > 0){       // Make sure the user has typed in something
             // Send the text
-            int sendResult = send(sock, userInput.c_str(), userInput.size() +1, 0);
+            int sendResult = send(sock, sendReady.data(), sendReady.size(), 0);
             if(sendResult != SOCKET_ERROR){
                 // Wait for response
-                ZeroMemory(buf, 4096);
-                int bytesReceived = recv(sock, buf, 4096, 0);
+                ZeroMemory(buf, 65535);
+                int bytesReceived = recv(sock, buf, 65535, 0);
                 if(bytesReceived > 0){
                     // Echo response to console
-                    std::cout << "SERVER>" << std::string(buf, 0, bytesReceived) << std::endl;
+                    receivedMsg = buf;
+                    std::cout << "SERVER>" << std::string(receivedMsg, 0, bytesReceived) << std::endl;
                 }
             }
         }
@@ -69,6 +82,23 @@ int main(){
     // Gracefully close down everything
     closesocket(sock);
     WSACleanup();
+}
+
+
+std::vector<char> TextToBinChars(std::string str){
+    std::string msgStr = "";
+
+    std::vector<char> bodyChar(str.begin(), str.end());
+    for(char c: bodyChar){
+        msgStr += std::bitset<8>(c).to_string();
+    }
+
+    std::vector<char> sendReady;
+    for(char c: msgStr){
+        sendReady.push_back(c);
+    }
+
+    return sendReady;
 }
 
 // POST / HTTP/1.1/\r\nHeader Stuff\r\n\r\nSensor

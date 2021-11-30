@@ -2,6 +2,7 @@
 #define TCPLISTENER_H
 
 #include <string>
+#include <vector>
 #include <WS2tcpip.h>
 
 class CTcpListener;
@@ -16,7 +17,7 @@ class CTcpListener{
     ~CTcpListener();
 
     // Send message back to client
-    void Send(int clientSocket, std::string msg);
+    void Send(int clientSocket, std::vector<char> msg);
 
     // Initialize winsock   
     bool init();
