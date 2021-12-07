@@ -1,6 +1,9 @@
 #include "msgHandler.h"
 
 #include "ConnectHandler.h"
+#include "PingHandler.h"
+#include "SubscribeHandler.h"
+
 
 #include <iostream>
 #include <fstream>
@@ -25,7 +28,7 @@ std::vector<char> HandleRequest(std::string msgType, std::string given_str){
             break;
         case 1:
             //CONNECT
-            std::cout << "------------------" << std::endl;
+            std::cout << "---Received Connect Message---" << std::endl;
             returnMsg = DecodeConnect(given_str);
             //After a Network Connection is established by a Client to a Server, the first packet sent from the Client to
             //the Server MUST be a CONNECT packet.
@@ -82,6 +85,9 @@ std::vector<char> HandleRequest(std::string msgType, std::string given_str){
 
             break;
         case 8:
+
+            std::cout << "---Received Subscribe Message---" << std::endl;
+            returnMsg = DecodeSubscribe(given_str);
             //SUBSCRIBE
 
             //The SUBSCRIBE packet is sent from the Client to the Server to create one or more Subscriptions. Each
@@ -111,6 +117,10 @@ std::vector<char> HandleRequest(std::string msgType, std::string given_str){
 
             break;
         case 12:
+
+            std::cout << "---Received Ping Request---" << std::endl;
+            
+
             //PINGREQ
 
             //The PINGREQ packet is sent from a Client to the Server. It can be used to:
@@ -121,7 +131,7 @@ std::vector<char> HandleRequest(std::string msgType, std::string given_str){
 
             //This packet is used in Keep Alive processing.
 
-            break;
+            return DecodePingReq(given_str);
         case 13:
             //PINGRESP  (NOT NEEDED)
 

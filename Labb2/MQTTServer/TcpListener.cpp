@@ -1,5 +1,6 @@
 #include <iostream>
 #include "TCPlistener.h"
+#include <bitset>
 
     CTcpListener::CTcpListener(std::string ipAddress, int port, MessageReceivedHandler handler)
         : m_ipAddress(ipAddress),  m_port(port), MessageReceived(handler)
@@ -45,7 +46,7 @@
                 closesocket(listening);
 
                 int bytesReceived = 0;
-                std::string receivedMsg;
+                std::string receivedMsg = "";
                 do{
                     ZeroMemory(buf, 65535);
                     bytesReceived = recv(client, buf, 65535, 0);
@@ -54,8 +55,13 @@
                     }
                     else if(bytesReceived > 0){
                         if(MessageReceived != NULL){
-                            receivedMsg = buf;
-                            MessageReceived(this, client, std::string(receivedMsg, 0, bytesReceived));
+                            
+                            receivedMsg = "";
+                            for(int i = 0; i < bytesReceived; i++){
+                                receivedMsg += std::bitset<8>(buf[i]).to_string();
+                            } 
+                            std::cout << "Received Message: " << receivedMsg << std::endl;
+                            MessageReceived(this, client, std::string(receivedMsg, 0, bytesReceived*8));
                         }
                     }
                     else{

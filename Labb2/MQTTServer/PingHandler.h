@@ -1,8 +1,11 @@
 #ifndef PINGHANDLER_H
 #define PINGHANDLER_H
 
-void DecodePingReq();
+#include <string>
+#include <vector>
 
-void SendPingAck();
+std::vector<char> DecodePingReq(std::string msg);
+
+std::vector<char> SendPingAck();
 
 #endif

@@ -26,15 +26,15 @@ int main(){
 
 void Listener_MessageReceived(CTcpListener* listener, int client, std::string msg){
 
-    std::cout << "LOOK HERE: " << msg << std::endl;
+    std::cout << "Received Message: " << msg << std::endl;
 
     std::vector<char> responseMsg = HandleRequest(msg.substr(0, 4), msg);
-    
-    listener->Send(client, responseMsg);
-    for(char c: responseMsg){
-        std::cout << c;
+
+    if(responseMsg.size() > 0){
+        listener->Send(client, responseMsg);
     }
-    std::cout << std::endl;
+    
+    std::cout << std::endl << "Message Sent: " << responseMsg.data() << std::endl;
 
     return;
 }

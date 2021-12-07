@@ -1,12 +1,15 @@
 #ifndef SUBSCRIBEHANDLER_H
 #define SUBSCRIBEHANDLER_H
 
-void DecodeSubscribe();
+#include <string>
+#include <vector>
 
-void SendSubAck();
+std::vector<char> DecodeSubscribe(std::string msg);
 
-void DecodeUnsubscribe();
+std::vector<char> SendSubAck();
 
-void SendUnsubAck();
+std::vector<char> DecodeUnsubscribe(std::string msg);
+
+std::vector<char> SendUnsubAck();
 
 #endif
