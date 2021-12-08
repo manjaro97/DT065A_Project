@@ -14,7 +14,7 @@ std::vector<char> DecodeConnect(std::string msg){
     //Header
     msg.erase(0, 8);
     //VariableLength
-    int lengthVariableHeader = std::bitset<8>(msg.substr(0, 8)).to_ulong();
+    int remainingLength = std::bitset<8>(msg.substr(0, 8)).to_ulong();
     msg.erase(0, 8);
     //Length of Protocol Name
     int lengthProtocolName = std::bitset<16>(msg.substr(0, 16)).to_ulong();

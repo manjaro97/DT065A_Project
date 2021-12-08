@@ -3,7 +3,7 @@
 #include "ConnectHandler.h"
 #include "PingHandler.h"
 #include "SubscribeHandler.h"
-
+#include "PublishHandler.h"
 
 #include <iostream>
 #include <fstream>
@@ -54,24 +54,32 @@ std::vector<char> HandleRequest(std::string msgType, std::string given_str){
 
             break;
         case 3:
+            std::cout << "---Received Publish Message---" << std::endl;
+            returnMsg = DecodePublish(given_str);
             //PUBLISH
 
             //A PUBLISH packet is sent from a Client to a Server or from a Server to a Client to transport an Application Message
 
             break;
         case 4:
+            std::cout << "---Received PubAck Message---" << std::endl;
+            returnMsg = DecodePubAck(given_str);
             //PUBACK
 
             //A PUBACK packet is the response to a PUBLISH packet with QoS 1.
 
             break;
         case 5:
+            std::cout << "---Received PubRec Message---" << std::endl;
+            returnMsg = DecodePubRec(given_str);
             //PUBREC
 
             //A PUBREC packet is the response to a PUBLISH packet with QoS 2. It is the second packet of the QoS 2 protocol exchange.
 
             break;
         case 6:
+            std::cout << "---Received PubRel Message---" << std::endl;
+            returnMsg = DecodePubRel(given_str);
             //PUBREL
 
             //A PUBREL packet is the response to a PUBREC packet. It is the third packet of the QoS 2 protocol exchange.
@@ -79,6 +87,8 @@ std::vector<char> HandleRequest(std::string msgType, std::string given_str){
 
             break;
         case 7:
+            std::cout << "---Received PubComp Message---" << std::endl;
+            returnMsg = DecodePubComp(given_str);
             //PUBCOMP
 
             //The PUBCOMP packet is the response to a PUBREL packet. It is the fourth and final packet of the QoS 2 protocol exchange.
@@ -105,6 +115,8 @@ std::vector<char> HandleRequest(std::string msgType, std::string given_str){
 
             break;
         case 10:
+            std::cout << "---Received Unsubscribe Message---" << std::endl;
+            returnMsg = DecodeUnsubscribe(given_str);
             //UNSUBSCRIBE
 
             //An UNSUBSCRIBE packet is sent by the Client to the Server, to unsubscribe from topics.
@@ -119,7 +131,7 @@ std::vector<char> HandleRequest(std::string msgType, std::string given_str){
         case 12:
 
             std::cout << "---Received Ping Request---" << std::endl;
-            
+            returnMsg = DecodePingReq(given_str);
 
             //PINGREQ
 
@@ -131,7 +143,7 @@ std::vector<char> HandleRequest(std::string msgType, std::string given_str){
 
             //This packet is used in Keep Alive processing.
 
-            return DecodePingReq(given_str);
+            break;
         case 13:
             //PINGRESP  (NOT NEEDED)
 

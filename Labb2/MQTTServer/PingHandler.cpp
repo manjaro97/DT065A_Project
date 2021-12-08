@@ -8,7 +8,7 @@ std::vector<char> DecodePingReq(std::string msg){
     //Header
     msg.erase(0, 8);
     //VariableLength
-    int lengthVariableHeader = std::bitset<8>(msg.substr(0, 8)).to_ulong();
+    int remainingLength = std::bitset<8>(msg.substr(0, 8)).to_ulong();
     msg.erase(0, 8);
 
     std::cout << "End of Decoding Ping Request" << std::endl;

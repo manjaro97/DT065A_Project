@@ -1,25 +1,28 @@
 #ifndef PUBLISHHANDLER_H
 #define PUBLISHHANDLER_H
 
-void DecodePublish();
+#include <vector>
+#include <string>
 
-void SendPublish();
+std::vector<char> DecodePublish(std::string msg);
 
-void DecodePubAck();
+std::vector<char> SendPublish(int QoS, std::string topic, std::string body);
 
-void SendPubAck();
+std::vector<char> DecodePubAck(std::string msg);
 
-void DecodePubRec();
+std::vector<char> SendPubAck(std::string packetID);
 
-void SendPubRec();
+std::vector<char> DecodePubRec(std::string msg);
 
-void DecodePubRel();
+std::vector<char> SendPubRec(std::string packetID);
 
-void SendPubRel();
+std::vector<char> DecodePubRel(std::string msg);
 
-void DecodePubComp();
+std::vector<char> SendPubRel(std::string packetID);
 
-void SendPubComp();
+std::vector<char> DecodePubComp(std::string msg);
+
+std::vector<char> SendPubComp(std::string packetID);
 
 
 #endif

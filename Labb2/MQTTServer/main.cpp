@@ -30,11 +30,16 @@ void Listener_MessageReceived(CTcpListener* listener, int client, std::string ms
 
     std::vector<char> responseMsg = HandleRequest(msg.substr(0, 4), msg);
 
-    if(responseMsg.size() > 0){
-        listener->Send(client, responseMsg);
+    if(responseMsg.size() != 0){
+        if(responseMsg.size() > 0){
+            listener->Send(client, responseMsg);
+        }
+
+        std::cout << std::endl << "---Message Sent---" << std::endl << std::endl;
     }
-    
-    std::cout << std::endl << "Message Sent: " << responseMsg.data() << std::endl;
+    else{
+        std::cout << std::endl << "---Received Acknowledgement---" << std::endl;
+    }
 
     return;
 }

@@ -60,7 +60,6 @@
                             for(int i = 0; i < bytesReceived; i++){
                                 receivedMsg += std::bitset<8>(buf[i]).to_string();
                             } 
-                            std::cout << "Received Message: " << receivedMsg << std::endl;
                             MessageReceived(this, client, std::string(receivedMsg, 0, bytesReceived*8));
                         }
                     }
