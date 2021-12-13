@@ -1,13 +1,12 @@
-#ifndef MSGHANDLER_H
-#define MSGHANDLER_H
+#ifndef DATABASE_H
+#define DATABASE_H
 
-#include <string>
 #include <vector>
-
-std::vector<char> HandleRequest(std::string msgType, std::string given_str);
+#include <string>
 
 std::vector<std::vector<std::string>> readDatabase();
 
 void updateDatabase(std::vector<std::vector<std::string>> storedData);
 
 #endif
+

@@ -1,112 +1,139 @@
-#include <iostream>
-#include "TCPlistener.h"
-#include <bitset>
+#include "TcpListener.h"
+#include "msgHandler.h"
+//MqttDB mqttDB; // Start database
 
-    CTcpListener::CTcpListener(std::string ipAddress, int port, MessageReceivedHandler handler)
-        : m_ipAddress(ipAddress),  m_port(port), MessageReceived(handler)
-    {
-        
-    }
+TcpConnection::~TcpConnection()
+{
+	// Close listening socket
+	closesocket(listening);
 
-    CTcpListener::~CTcpListener(){
-        Cleanup();
-    }
+	// Cleanup winsock
+	WSACleanup();
+}
 
-    // Send message back to client
-    void CTcpListener::Send(int clientSocket, std::vector<char> msg){
-        send(clientSocket, msg.data(), msg.size(), 0);
-    }
+void TcpConnection::Start() {
+	// Initialze winsock
+	WSADATA wsData;
+	WORD ver = MAKEWORD(2, 2);
 
-    // Initialize winsock   
-    bool CTcpListener::init(){
-        WSADATA data;
-        WORD ver = MAKEWORD(2, 2);
+	int wsOk = WSAStartup(ver, &wsData);
+	if (wsOk != 0)
+	{
+		cerr << "Can't Initialize winsock! Quitting" << endl;
+		return;
+	}
 
-        int wsInit = WSAStartup(ver, &data);
-        //TODO: Error Output
+    //TODO: TESTING
+    std::cout << "TESTING: 1" << std::endl;
+    //TODO: 
 
-        return wsInit == 0;
-    }
+	// Create a socket
+	listening = socket(AF_INET, SOCK_STREAM, 0); // SOCK_STREAM (TCP protocol)
+	if (listening == INVALID_SOCKET)
+	{
+		cerr << "Can't create a socket! Quitting" << endl;
+		return;
+	}
 
-    // Loop
-    void CTcpListener::Run(){
-        char buf[65535];
+	// Bind the ip address and port to a socket
+	sockaddr_in hint;
+	hint.sin_family = AF_INET;
+	hint.sin_port = htons(port);
+	hint.sin_addr.S_un.S_addr = INADDR_ANY; // Could also use inet_pton .... 
 
-        while(true){
+	bind(listening, (sockaddr*)&hint, sizeof(hint));
 
-            // Create a listening socket
-            SOCKET listening = CreateSocket();
-            if(listening == INVALID_SOCKET){
-                std::cerr << "Can't create a socket! Quitting?" << std::endl;
-                break;
-            }
+	// Tell Winsock the socket is for listening 
+	listen(listening, SOMAXCONN);
 
-            SOCKET client = WaitForConnection(listening);
-            if(client != INVALID_SOCKET){
-                closesocket(listening);
+	SOCKET clientSocket;
+	sockaddr_in client;
+	// Wait for a connection
+	int clientSize = sizeof(client);
 
-                int bytesReceived = 0;
-                std::string receivedMsg = "";
-                do{
-                    ZeroMemory(buf, 65535);
-                    bytesReceived = recv(client, buf, 65535, 0);
-                    if(bytesReceived == SOCKET_ERROR){
-                        std::cerr << "Error in recv(). Quitting!" << std::endl;
-                    }
-                    else if(bytesReceived > 0){
-                        if(MessageReceived != NULL){
-                            
-                            receivedMsg = "";
-                            for(int i = 0; i < bytesReceived; i++){
-                                receivedMsg += std::bitset<8>(buf[i]).to_string();
-                            } 
-                            MessageReceived(this, client, std::string(receivedMsg, 0, bytesReceived*8));
-                        }
-                    }
-                    else{
-                        std::cerr << "User disconnected. Quitting!" << std::endl;
-                    }
-                }   while(bytesReceived > 0);
+	while (clientSocket = accept(listening, (sockaddr*)&client, &clientSize)) {
+		if (clientSocket == INVALID_SOCKET)
+		{
+			cerr << "Invalid client socket" << endl;
+			continue;
+		}
+		_beginthreadex(0, 0, ServClient, (void*)&clientSocket, 0, 0);
+	}
+}
 
-                closesocket(client);
-            }
-            else{
-                std::cerr << "Client socket is invalid!" << std::endl;
-            }
+unsigned int __stdcall ServClient(void* data)
+{
+	sockaddr_in client;
+	SOCKET* clientSocket = (SOCKET*)data;
+	SOCKET threadClientSocket = *clientSocket;
 
-        }
-    }
-    
-    // Cleanup winsock
-    void CTcpListener::Cleanup(){
-        WSACleanup();
-    }
+	char host[NI_MAXHOST];		// Client's remote name
+	char service[NI_MAXSERV];	// Service (i.e. port) the client is connect on
 
-    // Create a socket
-    SOCKET CTcpListener::CreateSocket(){
-        SOCKET listening = socket(AF_INET, SOCK_STREAM, 0);
-        if(listening != INVALID_SOCKET){
-            sockaddr_in hint;
-            hint.sin_family = AF_INET;
-            hint.sin_port = htons(m_port);
-            inet_pton(AF_INET, m_ipAddress.c_str(), &hint.sin_addr);
+	ZeroMemory(host, NI_MAXHOST); // same as memset(host, 0, NI_MAXHOST);
+	ZeroMemory(service, NI_MAXSERV);
 
-            int bindOk = bind(listening, (sockaddr*)&hint, sizeof(hint));
-            if(bindOk != SOCKET_ERROR){
-                int listenOk = listen(listening, SOMAXCONN);
-                if(listenOk == SOCKET_ERROR){
-                    return -1;
-                }
-            }
-            else{
-                return -1;
-            }
-        }
-        return listening;
-    }
+	if (getnameinfo((sockaddr*)&client, sizeof(client), host, NI_MAXHOST, service, NI_MAXSERV, 0) == 0)
+	{
+		cout << host << " connected on port " << service << endl;
+	}
+	else
+	{
+		inet_ntop(AF_INET, &client.sin_addr, host, NI_MAXHOST);
+		cout << host << " connected on port " <<
+			ntohs(client.sin_port) << endl;
+	}
 
-    // Wait for a connection
-    SOCKET CTcpListener::WaitForConnection(SOCKET listening){
-        SOCKET client = accept(listening, NULL, NULL);
-        return client;
-    }
+	char buf[65535];
+	// While loop: accept and echo message back to client
+	while (true)
+	{
+		ZeroMemory(buf, 65535);
+
+		// Wait for client to send data
+		int bytesReceived = recv(threadClientSocket, buf, 65535, 0);
+
+		if (bytesReceived == 0)
+		{
+			cout << "Client disconnected " << endl;
+			break;
+		}
+		if (bytesReceived == SOCKET_ERROR)
+		{
+			cerr << "Error in recv(). Quitting" << endl;
+			break;
+		}
+
+        std::string receivedMsgBuffer = "";
+		for (int i = 0; i < bytesReceived; i++) {
+			receivedMsgBuffer += std::bitset<8>(buf[i]).to_string();
+		}
+        std::vector<char> responseMsg = HandleRequest(receivedMsgBuffer.substr(0, 4), receivedMsgBuffer);
+
+        send(threadClientSocket, responseMsg.data(), responseMsg.size(), 0);
+
+        /*
+		if (!handleMsg.GetSendSingleResponseFlag())
+		{
+			send(threadClientSocket, handleMsg.GetResponse().data(), handleMsg.GetResponse().size(), 0);
+			if (handleMsg.GetRetaindFlag())
+			{
+				send(threadClientSocket, handleMsg.GetRetainedResponse().data(), handleMsg.GetRetainedResponse().size(), 0);
+			}
+		}
+		else
+		{
+			vector<SOCKET> subs = handleMsg.GetMultipleResponses();
+			if (!subs.empty()) {
+				for (auto subscriberSocket : subs) {
+					send(subscriberSocket, handleMsg.GetResponse().data(), handleMsg.GetResponse().size(), 0);
+				}
+			}
+		}*/
+
+	};
+	// Close the socket
+	closesocket(threadClientSocket);
+
+	return 0;
+}

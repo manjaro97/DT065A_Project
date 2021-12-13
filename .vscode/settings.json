@@ -45,6 +45,9 @@
         "algorithm": "cpp",
         "fstream": "cpp",
         "xmemory0": "cpp",
-        "bitset": "cpp"
+        "bitset": "cpp",
+        "chrono": "cpp",
+        "ratio": "cpp",
+        "thread": "cpp"
     }
 }

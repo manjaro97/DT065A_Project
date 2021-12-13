@@ -10,14 +10,6 @@
 #include <algorithm>
 #include <bitset>
 
-std::vector<std::string> SplitHeader(std::string given_str){
-    std::vector<std::string> headerSplit; 
-
-    headerSplit.push_back(given_str.substr(0, 4)); // store the substring
-
-    return headerSplit;
-}
-
 std::vector<char> HandleRequest(std::string msgType, std::string given_str){
     std::vector<char> returnMsg;
     int requestNr = std::bitset<16>(msgType).to_ulong();

@@ -1,45 +1,26 @@
 #ifndef TCPLISTENER_H
 #define TCPLISTENER_H
 
+#include <iostream>
 #include <string>
-#include <vector>
 #include <WS2tcpip.h>
+#include <queue>
+#include <bitset>
+#include <process.h>
+#include "msgHandler.h"
 
-class CTcpListener;
+using namespace std;
 
-typedef void (*MessageReceivedHandler)(CTcpListener* listener, int socketId, std::string msg);
+unsigned int __stdcall ServClient(void* data);
 
-class CTcpListener{
-    public:
+class TcpConnection
+{
+	SOCKET listening;	// Create a socket
+	int port = 1883; // MQTT port
 
-    CTcpListener(std::string ipAddress, int port, MessageReceivedHandler handler);
-
-    ~CTcpListener();
-
-    // Send message back to client
-    void Send(int clientSocket, std::vector<char> msg);
-
-    // Initialize winsock   
-    bool init();
-
-    // Loop
-    void Run();
-    
-    // Cleanup winsock
-    void Cleanup();
-
-    private:
-
-    // Create a socket
-    SOCKET CreateSocket();
-
-    // Wait for a connection
-    SOCKET WaitForConnection(SOCKET listening);
-
-    std::string             m_ipAddress;
-    int                     m_port;
-    MessageReceivedHandler  MessageReceived;
-
+public:
+	~TcpConnection();
+	void Start();
 };
 
 #endif
