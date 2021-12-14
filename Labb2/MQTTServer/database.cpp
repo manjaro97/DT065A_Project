@@ -8,7 +8,7 @@ DB::DB()
 
 }
 
-void DB::PublishToDB(std::string topic, std::string message){
+void DB::PublishToDB(std::string topic, std::string message, int retain){
     
     //Add Data to Queued List to send out to Subscribers
     std::pair<std::string,std::string> msgPair(topic, message);
@@ -32,6 +32,15 @@ void DB::PublishToDB(std::string topic, std::string message){
     }
     else{
         listOfTopicData.insert(msgPair);
+    }
+
+    //Set if Topic should be Retained
+    std::pair<std::string,int> msgRetain(topic, retain);
+    if(isTopicRetained.find(topic) != isTopicRetained.end()){
+        isTopicRetained[topic] = retain;
+    }
+    else{
+        isTopicRetained.insert(msgRetain);
     }
 }
 
@@ -72,6 +81,24 @@ void DB::DisconnectEraseAll(SOCKET clientSOCKET){
     for(std::pair<std::string, std::vector<SOCKET>> p: listOfSubscriptions){
         RemoveSubscription(p.first, clientSOCKET);
     }
+}
+
+std::map<std::string, std::string> DB::GetRetained(){
+    std::map<std::string, std::string> m;
+
+    for(std::pair<std::string, int> p : isTopicRetained){
+        if(p.second == 1){
+            std::cout << p.first << " is Retained" << std::endl;
+            if(listOfTopicData.find(p.first) != listOfTopicData.end()){
+                std::string topic = p.first;
+                std::string data = listOfTopicData[p.first];
+                std::pair<std::string, std::string> p(topic, data);
+                
+                m.insert(p);
+            }
+        }
+    }
+    return m;
 }
 
 std::map<std::string, std::vector<SOCKET>> DB::GetListOfSubscriptions(){

@@ -11,6 +11,7 @@ std::vector<char> DecodePublish(std::string msg){
 
     //Header
     int QoS = std::bitset<8>(msg.substr(5, 2)).to_ulong();
+    int retain = std::bitset<8>(msg.substr(7, 1)).to_ulong();
     msg.erase(0, 8);
 
     //Remaining Length
@@ -49,7 +50,7 @@ std::vector<char> DecodePublish(std::string msg){
     }    
 
     //Publish topic & message to Database
-    databaseObj.PublishToDB(topic, message);
+    databaseObj.PublishToDB(topic, message, retain);
     
     std::cout << "End of Decoding Publish Message" << std::endl;
     std::vector<char> emptyResponse;

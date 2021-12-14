@@ -115,6 +115,14 @@ unsigned int __stdcall ServClient(void* data)
 
         send(threadClientSocket, responseMsg.data(), responseMsg.size(), 0);
 
+		//If SUBSCRIBE Send RETAINED
+		if(receivedMsgBuffer.substr(0,4) == "1000"){
+			std::map<std::string, std::string> retain = databaseObj.GetRetained();
+			for(std::pair<std::string, std::string> p : retain){
+				std::vector<char> retainMsg = SendPublish(0, p.first, p.second);
+				send(threadClientSocket, retainMsg.data(), retainMsg.size(), 0);
+			}
+		}
 
 		//Send out Data to all Subscribers
 		std::map<std::string, std::vector<SOCKET>> subscriptions = databaseObj.GetListOfSubscriptions();
