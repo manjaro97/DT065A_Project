@@ -2,7 +2,7 @@
 #include <iostream>
 #include <bitset>
 
-std::vector<char> DecodeSubscribe(std::string msg){
+std::vector<char> DecodeSubscribe(std::string msg, SOCKET clientSOCKET){
     
     std::cout << "Decoding Subscibe Message" << std::endl;
 
@@ -44,7 +44,9 @@ std::vector<char> DecodeSubscribe(std::string msg){
         msg.erase(0, 2);
         i+=1;
 
-        //TODO: Send PackageID and topic to database
+        std::cout << "Adding Subscription" << std::endl;
+        //Send SOCKET and topic to database
+        databaseObj.AddSubscription(topic, clientSOCKET);
 
         switch (QoS){
         case 0:
@@ -85,7 +87,7 @@ std::vector<char> SendSubAck(std::string subAckMsg){
     return byteVector;
 }
 
-std::vector<char> DecodeUnsubscribe(std::string msg){
+std::vector<char> DecodeUnsubscribe(std::string msg, SOCKET clientSOCKET){
     
     std::cout << "Decoding Subscibe Message" << std::endl;
 
@@ -122,7 +124,9 @@ std::vector<char> DecodeUnsubscribe(std::string msg){
             i+=1;
         }
         
-        //TODO: Delete PackageID with topic from database
+        std::cout << "Deleting Subscription" << std::endl;
+        //Remove SOCKET and topic from database
+        databaseObj.RemoveSubscription(topic, clientSOCKET);
 
     }
     

@@ -1,5 +1,9 @@
 #include "TcpListener.h"
 #include "msgHandler.h"
+#include "PublishHandler.h"
+#include "Header.h"
+#include "database.h"
+
 //MqttDB mqttDB; // Start database
 
 TcpConnection::~TcpConnection()
@@ -22,10 +26,6 @@ void TcpConnection::Start() {
 		cerr << "Can't Initialize winsock! Quitting" << endl;
 		return;
 	}
-
-    //TODO: TESTING
-    std::cout << "TESTING: 1" << std::endl;
-    //TODO: 
 
 	// Create a socket
 	listening = socket(AF_INET, SOCK_STREAM, 0); // SOCK_STREAM (TCP protocol)
@@ -51,12 +51,15 @@ void TcpConnection::Start() {
 	// Wait for a connection
 	int clientSize = sizeof(client);
 
+	std::cout << "---Server Started---" << std::endl;
+
 	while (clientSocket = accept(listening, (sockaddr*)&client, &clientSize)) {
 		if (clientSocket == INVALID_SOCKET)
 		{
 			cerr << "Invalid client socket" << endl;
 			continue;
 		}
+
 		_beginthreadex(0, 0, ServClient, (void*)&clientSocket, 0, 0);
 	}
 }
@@ -108,9 +111,26 @@ unsigned int __stdcall ServClient(void* data)
 		for (int i = 0; i < bytesReceived; i++) {
 			receivedMsgBuffer += std::bitset<8>(buf[i]).to_string();
 		}
-        std::vector<char> responseMsg = HandleRequest(receivedMsgBuffer.substr(0, 4), receivedMsgBuffer);
+        std::vector<char> responseMsg = HandleRequest(receivedMsgBuffer, threadClientSocket);
 
         send(threadClientSocket, responseMsg.data(), responseMsg.size(), 0);
+
+
+		//Send out Data to all Subscribers
+		std::map<std::string, std::vector<SOCKET>> subscriptions = databaseObj.GetListOfSubscriptions();
+		std::map<std::string, std::string> newData = databaseObj.GetNewData();
+		for(pair<std::string, std::string> p: newData){
+			std::vector<SOCKET> list = subscriptions[p.first];
+			if(list.size() != 0){
+				std::string n1 = p.first;
+				std::string n2 = p.second;
+				std::vector<char> subscriptionMsg = SendPublish(0, n1, n2);
+				for(SOCKET socket: list){
+					send(socket, subscriptionMsg.data(), subscriptionMsg.size(), 0);
+				}
+			}
+		}
+		databaseObj.EraseDataFromQueue();
 
         /*
 		if (!handleMsg.GetSendSingleResponseFlag())

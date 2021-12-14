@@ -3,11 +3,8 @@
 
 #include <string>
 #include <vector>
+#include <WS2tcpip.h>
 
-std::vector<char> HandleRequest(std::string msgType, std::string given_str);
-
-std::vector<std::vector<std::string>> readDatabase();
-
-void updateDatabase(std::vector<std::vector<std::string>> storedData);
+std::vector<char> HandleRequest(std::string given_str, SOCKET clientSOCKET);
 
 #endif

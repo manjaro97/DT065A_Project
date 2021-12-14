@@ -4,15 +4,17 @@
 #include "PingHandler.h"
 #include "SubscribeHandler.h"
 #include "PublishHandler.h"
+#include "Header.h"
+#include "database.h"
 
 #include <iostream>
 #include <fstream>
 #include <algorithm>
 #include <bitset>
 
-std::vector<char> HandleRequest(std::string msgType, std::string given_str){
+std::vector<char> HandleRequest(std::string given_str, SOCKET clientSOCKET){
     std::vector<char> returnMsg;
-    int requestNr = std::bitset<16>(msgType).to_ulong();
+    int requestNr = std::bitset<16>(given_str.substr(0, 4)).to_ulong();
 
     switch(requestNr){
         case 0:
@@ -21,6 +23,8 @@ std::vector<char> HandleRequest(std::string msgType, std::string given_str){
         case 1:
             //CONNECT
             std::cout << "---Received Connect Message---" << std::endl;
+		    std::cout << std::endl;
+
             returnMsg = DecodeConnect(given_str);
             //After a Network Connection is established by a Client to a Server, the first packet sent from the Client to
             //the Server MUST be a CONNECT packet.
@@ -89,7 +93,7 @@ std::vector<char> HandleRequest(std::string msgType, std::string given_str){
         case 8:
 
             std::cout << "---Received Subscribe Message---" << std::endl;
-            returnMsg = DecodeSubscribe(given_str);
+            returnMsg = DecodeSubscribe(given_str, clientSOCKET);
             //SUBSCRIBE
 
             //The SUBSCRIBE packet is sent from the Client to the Server to create one or more Subscriptions. Each
@@ -108,7 +112,7 @@ std::vector<char> HandleRequest(std::string msgType, std::string given_str){
             break;
         case 10:
             std::cout << "---Received Unsubscribe Message---" << std::endl;
-            returnMsg = DecodeUnsubscribe(given_str);
+            returnMsg = DecodeUnsubscribe(given_str, clientSOCKET);
             //UNSUBSCRIBE
 
             //An UNSUBSCRIBE packet is sent by the Client to the Server, to unsubscribe from topics.
@@ -146,6 +150,8 @@ std::vector<char> HandleRequest(std::string msgType, std::string given_str){
 
             break;
         case 14:
+            std::cout << "---Received Disconnect Request---" << std::endl;
+            returnMsg = DecodeDisconnect(clientSOCKET);
             //DISCONNECT
 
             //The DISCONNECT packet is the final MQTT Control Packet sent from the Client or the Server. It
@@ -164,56 +170,3 @@ std::vector<char> HandleRequest(std::string msgType, std::string given_str){
 
     return returnMsg;
 }
-
-/*
-std::vector<std::vector<std::string>> readDatabase(){
-    
-    std::vector<std::vector<std::string>> storedData;
-    int databaseSize = 0;
-    std::string delimiter = ": ";
-    std::string line;
-    std::ifstream myfile ("database.txt");
-    if (myfile.is_open())
-    {
-        while ( std::getline (myfile,line) )
-        { 
-            std::string lineCopy = line;
-            size_t pos = lineCopy.find (delimiter);
-
-            if( pos != std::string::npos)  
-            {  
-                storedData.push_back(std::vector<std::string>());
-                storedData[storedData.size()-1].push_back(lineCopy.substr(0, pos)); // store the substring  
-                lineCopy.erase(0, pos + delimiter.length()); // erase previous substring  
-            }  
-            
-            storedData[storedData.size()-1].push_back(delimiter);
-            storedData[storedData.size()-1].push_back(lineCopy);
-            databaseSize++;
-        }
-        myfile.close();
-    }
-    else{
-        std::cout << "File could not be read" << std::endl;
-    }
-
-    return storedData;
-}
-
-void updateDatabase(std::vector<std::vector<std::string>> storedData){
-
-    std::ofstream myfile1 ("database.txt");
-    myfile1.open("database.txt", std::ofstream::out | std::ofstream::trunc);
-    myfile1.close();
-    std::ofstream myfile2 ("database.txt");
-    if (myfile2.is_open())
-    {
-        for (int i = 0; i < storedData.size(); i++)
-        {
-            myfile2 << storedData[i][0] + storedData[i][1] + storedData[i][2] + "\n";
-        }
-        myfile2.close();
-    }
-}
-
-*/

@@ -1,7 +1,92 @@
 #include "database.h"
 #include <iostream>
 #include <fstream>
+#include <algorithm>
 
+DB::DB()
+{
+
+}
+
+void DB::PublishToDB(std::string topic, std::string message){
+    
+    //Add Data to Queued List to send out to Subscribers
+    std::pair<std::string,std::string> msgPair(topic, message);
+    if(queuedTopics.find(topic) != queuedTopics.end()){
+        queuedTopics[topic] = message;
+    }
+    else{
+        queuedTopics.insert(msgPair);
+    }
+
+    //Add Topic to Subscription List
+    if(listOfSubscriptions.find(topic) == listOfSubscriptions.end()){
+        std::vector<SOCKET> socketList;
+        std::pair<std::string, std::vector<SOCKET>> subPair(topic, socketList);
+        listOfSubscriptions.insert(subPair);
+    }
+
+    //Add data of Topic to database
+    if(listOfTopicData.find(topic) != listOfTopicData.end()){
+        listOfTopicData[topic] = message;
+    }
+    else{
+        listOfTopicData.insert(msgPair);
+    }
+}
+
+void DB::AddSubscription(std::string topic, SOCKET clientSOCKET){
+
+    if(listOfSubscriptions.find(topic) != listOfSubscriptions.end()){
+        std::vector<SOCKET> socketList = listOfSubscriptions[topic];
+        socketList.push_back(clientSOCKET);
+        listOfSubscriptions[topic] = socketList;
+        std::cout << "Client: " << clientSOCKET << " Added to Topic: " << topic << std::endl;
+    }
+    else{
+        std::cout << "Topic does not exist, Subscription Failed" << std::endl;
+    }
+
+}
+
+void DB::RemoveSubscription(std::string topic, SOCKET clientSOCKET){
+
+    if(listOfSubscriptions.find(topic) != listOfSubscriptions.end()){
+        std::vector<SOCKET> socketList = listOfSubscriptions[topic];
+
+        if(std::find(socketList.begin(), socketList.end(), clientSOCKET) != socketList.end()){
+            socketList.erase(std::remove(socketList.begin(), socketList.end(), clientSOCKET), socketList.end());
+            listOfSubscriptions[topic] = socketList;
+            std::cout << "Client: " << clientSOCKET << " Subscription Removed from Topic: " << topic << std::endl;
+        }
+        else{
+            std::cout << "Subscription does not exist within Topic" << std::endl;
+        }
+    }
+    else{
+        std::cout << "Topic does not exist, Failed to Unsubscribe" << std::endl;
+    }
+}
+
+void DB::DisconnectEraseAll(SOCKET clientSOCKET){
+    for(std::pair<std::string, std::vector<SOCKET>> p: listOfSubscriptions){
+        RemoveSubscription(p.first, clientSOCKET);
+    }
+}
+
+std::map<std::string, std::vector<SOCKET>> DB::GetListOfSubscriptions(){
+    return listOfSubscriptions;
+}
+
+std::map<std::string, std::string> DB::GetNewData(){
+    return queuedTopics;
+}
+
+void DB::EraseDataFromQueue(){
+    queuedTopics.clear();
+}
+
+/*
 std::vector<std::vector<std::string>> readDatabase(){
     
     std::vector<std::vector<std::string>> storedData;
@@ -51,3 +136,5 @@ void updateDatabase(std::vector<std::vector<std::string>> storedData){
         myfile2.close();
     }
 }
+
+*/

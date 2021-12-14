@@ -1,26 +1,26 @@
 #include "PublishHandler.h"
+#include "database.h"
+#include "Header.h"
 #include <iostream>
 #include <bitset>
 
 std::vector<char> DecodePublish(std::string msg){
-    
+    std::string msgCopy = msg;
+
     std::cout << "Decoding Publish Message" << std::endl;
 
     //Header
     int QoS = std::bitset<8>(msg.substr(5, 2)).to_ulong();
     msg.erase(0, 8);
-    std::cout << "QoS: " << QoS << std::endl;
 
     //Remaining Length
     int remainingLength = std::bitset<8>(msg.substr(0, 8)).to_ulong();
     msg.erase(0, 8);
     remainingLength -= 2;
-    std::cout << "remainingLength: " << remainingLength << std::endl;
 
     //Topic Length
     int topicLength = std::bitset<16>(msg.substr(0, 16)).to_ulong();
     msg.erase(0, 16);
-    std::cout << "topicLength: " << topicLength << std::endl;
 
     std::string topic = "";
     char c;
@@ -37,7 +37,6 @@ std::vector<char> DecodePublish(std::string msg){
         int packageID = std::bitset<16>(msg.substr(0, 16)).to_ulong();
         packetID = msg.substr(0, 16);
         msg.erase(0, 16);
-        std::cout << "Package ID: " << packageID << std::endl;
     }
 
     //Handle Payload
@@ -49,7 +48,8 @@ std::vector<char> DecodePublish(std::string msg){
         }
     }    
 
-    //TODO: Publish topic & message to Database
+    //Publish topic & message to Database
+    databaseObj.PublishToDB(topic, message);
     
     std::cout << "End of Decoding Publish Message" << std::endl;
     std::vector<char> emptyResponse;
@@ -83,24 +83,24 @@ std::vector<char> SendPublish(int QoS, std::string topic, std::string body){
     std::string variable = "";
 
     //Topic Length
-    variable += std::bitset<16>(topic.length()).to_ulong();
+    variable += std::bitset<16>(topic.length()).to_string();
 
     //Topic
     for (int i = 0; i < topic.length(); i++)
     {
-        variable += std::bitset<8>(topic[i]).to_ulong();
+        variable += std::bitset<8>(topic[i]).to_string();
     }
 
     //Packet ID
     if(QoS != 0){
         int packageID = rand() % 100000;
-        variable += std::bitset<16>(packageID).to_ulong();
+        variable += std::bitset<16>(packageID).to_string();
     }
 
     //Body
     for (int i = 0; i < body.length(); i++)
     {
-        variable += std::bitset<8>(body[i]).to_ulong();
+        variable += std::bitset<8>(body[i]).to_string();
     }
 
     //Remaining Length

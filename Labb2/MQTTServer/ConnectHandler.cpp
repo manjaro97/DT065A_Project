@@ -74,7 +74,10 @@ std::vector<char> SendConnAck(){
     return byteVector;
 }
 
-
-void DecodeDisconnect(){
+std::vector<char> DecodeDisconnect(SOCKET clientSOCKET){
     
+    databaseObj.DisconnectEraseAll(clientSOCKET);
+
+    std::vector<char> emptyResponse;
+    return emptyResponse;
 }

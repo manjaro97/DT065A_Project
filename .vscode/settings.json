@@ -48,6 +48,10 @@
         "bitset": "cpp",
         "chrono": "cpp",
         "ratio": "cpp",
-        "thread": "cpp"
+        "thread": "cpp",
+        "map": "cpp",
+        "xtree": "cpp",
+        "deque": "cpp",
+        "queue": "cpp"
     }
 }
