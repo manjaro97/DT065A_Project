@@ -5,8 +5,8 @@
 #include "sendMessage.h"
 #include "convertCoAP.h"
 
-// cd "C:\Users\Manjaro\Desktop\DT065A_Project\DT065A_Project\LABB1\UDPClient\" ; if ($?) { g++ main.cpp sendMessage.cpp sendMessage.h convertCoAP.cpp convertCoAP.h -o main -lws2_32} ; if ($?) { .\main }
-// cd "C:\Users\j_c_k\Desktop\DT065A_Project\DT065A_Project\LABB1\UDPClient\" ; if ($?) { g++ main.cpp sendMessage.cpp sendMessage.h convertCoAP.cpp convertCoAP.h -o main -lws2_32} ; if ($?) { .\main }
+// cd "C:\Users\Manjaro\Desktop\DT065A_Project\DT065A_Project\Project\Gateway_Program\UDPClient\" ; if ($?) { g++ main.cpp sendMessage.cpp sendMessage.h convertCoAP.cpp convertCoAP.h -o main -lws2_32} ; if ($?) { .\main }
+// cd "C:\Users\j_c_k\Desktop\DT065A_Project\DT065A_Project\Project\Gateway_Program\UDPClient\" ; if ($?) { g++ main.cpp sendMessage.cpp sendMessage.h convertCoAP.cpp convertCoAP.h -o main -lws2_32} ; if ($?) { .\main }
 
 int main(){
 
@@ -58,7 +58,7 @@ int main(){
         tester.push_back(Payload); // Payload
         //----------------------------------
         std::cout << "\n\n";
-
+        
         std::vector<char> returnMsg = sendMessage(toCoAP(tester));
         std::vector<std::string> s = fromCoAP(returnMsg);
         for (std::string str : s){
