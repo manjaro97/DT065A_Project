@@ -115,49 +115,26 @@ unsigned int __stdcall ServClient(void* data)
 
         send(threadClientSocket, responseMsg.data(), responseMsg.size(), 0);
 
-		//If SUBSCRIBE Send RETAINED
-		if(receivedMsgBuffer.substr(0,4) == "1000"){
-			std::map<std::string, std::string> retain = databaseObj.GetRetained();
-			for(std::pair<std::string, std::string> p : retain){
-				std::vector<char> retainMsg = SendPublish(0, p.first, p.second);
-				send(threadClientSocket, retainMsg.data(), retainMsg.size(), 0);
-			}
+		//Send retained Msg
+		std::pair<std::string, std::string> retainedMsg = databaseObj.GetRetainedMsg(threadClientSocket);
+		if(retainedMsg.second != ""){
+			std::cout << "Sending retained msg: " << std::endl;
+			std::vector<char> subscriptionMsg = SendPublish(0, retainedMsg.first, retainedMsg.second);
+			send(threadClientSocket, subscriptionMsg.data(), subscriptionMsg.size(), 0);
 		}
 
 		//Send out Data to all Subscribers
 		std::map<std::string, std::vector<SOCKET>> subscriptions = databaseObj.GetListOfSubscriptions();
-		std::map<std::string, std::string> newData = databaseObj.GetNewData();
-		for(pair<std::string, std::string> p: newData){
+		for(pair<std::string, std::string> p: databaseObj.GetNewData()){
 			std::vector<SOCKET> list = subscriptions[p.first];
 			if(list.size() != 0){
-				std::string n1 = p.first;
-				std::string n2 = p.second;
-				std::vector<char> subscriptionMsg = SendPublish(0, n1, n2);
+				std::vector<char> subscriptionMsg = SendPublish(0, p.first, p.second);
 				for(SOCKET socket: list){
 					send(socket, subscriptionMsg.data(), subscriptionMsg.size(), 0);
 				}
 			}
 		}
 		databaseObj.EraseDataFromQueue();
-
-        /*
-		if (!handleMsg.GetSendSingleResponseFlag())
-		{
-			send(threadClientSocket, handleMsg.GetResponse().data(), handleMsg.GetResponse().size(), 0);
-			if (handleMsg.GetRetaindFlag())
-			{
-				send(threadClientSocket, handleMsg.GetRetainedResponse().data(), handleMsg.GetRetainedResponse().size(), 0);
-			}
-		}
-		else
-		{
-			vector<SOCKET> subs = handleMsg.GetMultipleResponses();
-			if (!subs.empty()) {
-				for (auto subscriberSocket : subs) {
-					send(subscriberSocket, handleMsg.GetResponse().data(), handleMsg.GetResponse().size(), 0);
-				}
-			}
-		}*/
 
 	};
 	// Close the socket

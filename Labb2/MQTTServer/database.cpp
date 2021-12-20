@@ -56,6 +56,15 @@ void DB::AddSubscription(std::string topic, SOCKET clientSOCKET){
         std::cout << "Topic does not exist, Subscription Failed" << std::endl;
     }
 
+    //For retained messages
+    std::pair<SOCKET, std::string> queuedSubscriber(clientSOCKET, topic);
+    queuedSubscription.insert(queuedSubscriber);
+    //TODO:
+    std::cout << "Client: " << clientSOCKET << " Added to retain queue of topic: " << topic << std::endl;
+    for(std::pair<SOCKET, std::string> p : queuedSubscription){
+        std::cout << "Client: " << clientSOCKET << " Added to retain queue of topic: " << topic << std::endl;
+    }
+    
 }
 
 void DB::RemoveSubscription(std::string topic, SOCKET clientSOCKET){
@@ -83,24 +92,6 @@ void DB::DisconnectEraseAll(SOCKET clientSOCKET){
     }
 }
 
-std::map<std::string, std::string> DB::GetRetained(){
-    std::map<std::string, std::string> m;
-
-    for(std::pair<std::string, int> p : isTopicRetained){
-        if(p.second == 1){
-            std::cout << p.first << " is Retained" << std::endl;
-            if(listOfTopicData.find(p.first) != listOfTopicData.end()){
-                std::string topic = p.first;
-                std::string data = listOfTopicData[p.first];
-                std::pair<std::string, std::string> p(topic, data);
-                
-                m.insert(p);
-            }
-        }
-    }
-    return m;
-}
-
 std::map<std::string, std::vector<SOCKET>> DB::GetListOfSubscriptions(){
     return listOfSubscriptions;
 }
@@ -113,55 +104,18 @@ void DB::EraseDataFromQueue(){
     queuedTopics.clear();
 }
 
-/*
-std::vector<std::vector<std::string>> readDatabase(){
-    
-    std::vector<std::vector<std::string>> storedData;
-    int databaseSize = 0;
-    std::string delimiter = ": ";
-    std::string line;
-    std::ifstream myfile ("topics.txt");
-    if (myfile.is_open())
-    {
-        while ( std::getline (myfile,line) )
-        { 
-            std::string lineCopy = line;
-            size_t pos = lineCopy.find (delimiter);
+std::pair<std::string, std::string> DB::GetRetainedMsg(SOCKET clientSOCKET){
+    std::string topic = queuedSubscription[clientSOCKET];
+    queuedSubscription.clear();
 
-            if( pos != std::string::npos)  
-            {  
-                storedData.push_back(std::vector<std::string>());
-                storedData[storedData.size()-1].push_back(lineCopy.substr(0, pos)); // store the substring  
-                lineCopy.erase(0, pos + delimiter.length()); // erase previous substring  
-            }  
-            
-            storedData[storedData.size()-1].push_back(delimiter);
-            storedData[storedData.size()-1].push_back(lineCopy);
-            databaseSize++;
-        }
-        myfile.close();
+    if(isTopicRetained[topic] == 1){
+        std::cout << topic << " is Retained" << std::endl;
+
+        std::pair<std::string, std::string> data(topic, listOfTopicData[topic]);
+        return data;
     }
     else{
-        std::cout << "File could not be read" << std::endl;
-    }
-
-    return storedData;
-}
-
-void updateDatabase(std::vector<std::vector<std::string>> storedData){
-
-    std::ofstream myfile1 ("topics.txt");
-    myfile1.open("database.txt", std::ofstream::out | std::ofstream::trunc);
-    myfile1.close();
-    std::ofstream myfile2 ("topics.txt");
-    if (myfile2.is_open())
-    {
-        for (int i = 0; i < storedData.size(); i++)
-        {
-            myfile2 << storedData[i][0] + storedData[i][1] + storedData[i][2] + "\n";
-        }
-        myfile2.close();
+        std::pair<std::string, std::string> emptyReturn(topic, "");
+        return emptyReturn;
     }
 }
-
-*/

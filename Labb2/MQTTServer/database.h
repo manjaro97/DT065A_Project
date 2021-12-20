@@ -17,10 +17,10 @@ class DB {
     void AddSubscription(std::string topic, SOCKET clientSOCKET);
     void RemoveSubscription(std::string topic, SOCKET clientSOCKET); 
     void DisconnectEraseAll(SOCKET clientSOCKET);
-    std::map<std::string, std::string> GetRetained();
     std::map<std::string, std::vector<SOCKET>> GetListOfSubscriptions();
     std::map<std::string, std::string> GetNewData(); 
     void EraseDataFromQueue();
+    std::pair<std::string, std::string> GetRetainedMsg(SOCKET clientSOCKET);
     
 
   private:  
@@ -28,6 +28,7 @@ class DB {
     std::map<std::string, std::string> listOfTopicData; //List of last stored data to Topics
     std::map<std::string, int> isTopicRetained; //List of last stored data to Topics
     std::map<std::string, std::string> queuedTopics; //List of data to be sent out
+    std::map<SOCKET, std::string> queuedSubscription;
 };
 
 #endif
