@@ -1,1 +1,2 @@
-test: 123
+sensor:12test12
+brere:1337

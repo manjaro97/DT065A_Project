@@ -3,13 +3,11 @@
 #include <sstream>
 #include "convertCoAP.h"
 
-int binToDec(std::string);
-std::string binToText(std::string str);
 std::string fromCoAPoptionDelta(std::string delta);
 std::string toCoAPoptionDelta(std::string delta);
 
 std::vector<char> toCoAP(std::vector<std::string> inputMsg){
-
+    
     std::string msgCoAPstr = "";
 
     // Version conversion
@@ -109,10 +107,11 @@ std::vector<char> toCoAP(std::vector<std::string> inputMsg){
     for(char c: optionChar){
         msgCoAPstr += std::bitset<8>(c).to_string();
     }
+    
+    // End Header
+    msgCoAPstr += "11111111";
 
     if(inputMsg[6].size() != 0){
-        // End Header
-        msgCoAPstr += "11111111";
 
         // Body Conversion
         std::vector<char> bodyChar(inputMsg[6].begin(), inputMsg[6].end());
@@ -123,7 +122,7 @@ std::vector<char> toCoAP(std::vector<std::string> inputMsg){
 
     std::vector<char> byteVector;
     for(int i = 0; i < msgCoAPstr.length()/8; i++){
-        byteVector.push_back(binToDec(msgCoAPstr.substr(i*8, 8)));
+        byteVector.push_back(std::bitset<8>(msgCoAPstr.substr(i*8, 8)).to_ullong());
     }
 
     return byteVector;
@@ -174,7 +173,7 @@ std::vector<std::string> fromCoAP(std::vector<char> msg){
     std::string tkl = receivedMsg.substr(0, 4);
     receivedMsg.erase(0, 4);
 
-    int tokenLength = binToDec(tkl);
+    int tokenLength = std::bitset<8>(tkl).to_ullong();
 
     //Convert Request CODE
     std::string requestCode = receivedMsg.substr(0, 8);
@@ -225,7 +224,7 @@ std::vector<std::string> fromCoAP(std::vector<char> msg){
     while(headerEnd != "11111111"){
         //Convert Option Delta
 
-        optionDelta = std::bitset<4>(binToDec(optionDelta) + binToDec(receivedMsg.substr(0, 4))).to_string();
+        optionDelta = std::bitset<4>(std::bitset<8>(optionDelta).to_ullong() + std::bitset<8>(receivedMsg.substr(0, 4)).to_ullong()).to_string();
 
         receivedMsg.erase(0, 4);
         std::string delta;
@@ -276,7 +275,7 @@ std::vector<std::string> fromCoAP(std::vector<char> msg){
             msgVec.push_back("optionLenMsg");
         }
         else{
-            optionLen = binToDec(optionLength);
+            optionLen = std::bitset<8>(optionLength).to_ullong();
         }
 
         //Convert Option Delta Extended
@@ -303,99 +302,70 @@ std::vector<std::string> fromCoAP(std::vector<char> msg){
             std::string optionLengthExt = receivedMsg.substr(0, 8);
             receivedMsg.erase(0, 8);
 
-            optionLen = binToDec(optionLengthExt);
+            optionLen = std::bitset<8>(optionLengthExt).to_ullong();
         }
         else if(extendedOptionLength == 2){
             std::string optionLengthExt = receivedMsg.substr(0, 16);
             receivedMsg.erase(0, 16);
 
-            optionLen = binToDec(optionLengthExt);
+            optionLen = std::bitset<16>(optionLengthExt).to_ullong();
         }
 
         //Convert Option Value
-        std::string optionValue = receivedMsg.substr(0, optionLen * 8);
-        receivedMsg.erase(0, optionLen * 8);
+        std::string optionValue = "";
+        for (int i = 0; i < optionLen; i++)
+        {
+            optionValue += char(std::bitset<8>(receivedMsg.substr(0, 8)).to_ulong());
+            receivedMsg.erase(0, 8);
+        }
 
-        msgVec.push_back(binToText(optionValue));
+        msgVec.push_back(optionValue);
 
         //Find Header End
         headerEnd = receivedMsg.substr(0, 8);
     }
 
     msgVec.push_back("Header ending at: " + receivedMsg.substr(0, 8));
-
     receivedMsg.erase(0, 8);
 
     //Convert Payload
-    msgVec.push_back(binToText(receivedMsg));
+    std::string payload = "";
+    int payloadLen = receivedMsg.length()/8;
+    for (int i = 0; i < (payloadLen); i++)
+    {
+        payload += char(std::bitset<8>(receivedMsg.substr(0, 8)).to_ulong());
+        receivedMsg.erase(0, 8);
+    }
+    msgVec.push_back(payload);
     
     return msgVec;
 }
 
-int binToDec(std::string binNum){
-    long bin, dec = 0, rem, num, base = 1;
-    num = std::stoi(binNum);
-    bin = num;
-    while (num > 0)
-    {
-        rem = num % 10;
-        dec = dec + rem * base;
-        base = base * 2;
-        num = num / 10;
-    }
-    //std::cout << "The decimal equivalent of " << bin << " : " << dec << std::endl;
-    return dec;
-}
-
-std::string binToText(std::string str){
-    
-    std::stringstream sstream(str);
-    std::string output;
-
-    while(sstream.good())
-    {
-        std::bitset<8> bits;
-        sstream >> bits;
-        char c = char(bits.to_ulong());
-        output += c;
-    }
-
-    return output;
-}
-
 std::string fromCoAPoptionDelta(std::string delta){
-    if(delta == "0001"){
-        return "If-Match";
-    }
-    else if(delta == "0011"){
-        return "Uri-Host";
-    }
-    else if(delta == "0100"){
-        return "ETag";
-    }
-    else if(delta == "0101"){
-        return "If-None-Match";
-    }
-    else if(delta == "0111"){
-        return "Uri-Port";
-    }
-    else if(delta == "1000"){
-        return "Location-Path";
-    }
-    else if(delta == "1011"){
-        return "Uri-Path";
-    }
-    else if(delta == "1100"){
-        return "Content-Format";
-    }
-    else if(delta == "1110"){
-        return "Max-Age";
-    }
-    else if(delta == "1111"){
-        return "Uri-Query";
-    }
-    else{
-        return "ERROR";
+    int deltaNum = std::bitset<4>(delta).to_ulong();
+    switch(deltaNum){
+        case 1:
+            return "If-Match";
+        case 3:
+            return "Uri-Host";
+        case 4:
+            return "ETag";
+        case 5:
+            return "If-None-Match";
+        case 7:
+            return "Uri-Port";
+        case 8:
+            return "Location-Path";
+        case 11:
+            return "Uri-Path";
+        case 12:
+            return "Content-Format";
+        case 14:
+            return "Max-Age";
+        case 15:
+            return "Uri-Query";
+        default:
+            return "ERROR";
     }
 }
 

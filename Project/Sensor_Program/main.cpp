@@ -1,11 +1,17 @@
 #include <iostream>
 #include "convertCoAP.h"
 #include <WS2tcpip.h>
+#include <fstream>
+#include <string>
+#include <bitset>
 
 //#pragma comment (lib, "ws2_32.lib")
 
 // cd "C:\Users\Manjaro\Desktop\DT065A_Project\DT065A_Project\Project\Sensor_Program\" ; if ($?) { g++ main.cpp convertCoAP.h convertCoAP.cpp -o main -lws2_32} ; if ($?) { .\main }
 // cd "C:\Users\j_c_k\Desktop\DT065A_Project\DT065A_Project\Project\Sensor_Program\" ; if ($?) { g++ main.cpp convertCoAP.h convertCoAP.cpp -o main -lws2_32} ; if ($?) { .\main }
+
+std::vector<std::string> prepareMsg(std::string path);
+std::string GetSensorData(std::string path);
 
 int main(){
     
@@ -81,16 +87,30 @@ int main(){
         inet_ntop(AF_INET, &client.sin_addr, clientIp, 256);
 
         std::cout << "Message recv from " << clientIp << " : " << buf << std::endl;
-        
+
         std::vector<char> receivedMsg;
-        for (char c: buf){
-            receivedMsg.push_back(c);
-        }
+
+        for (int i = 0; i < bytesReceived; i++) {
+			receivedMsg.push_back(buf[i]);
+		}
         
         std::vector<std::string> translatedMsg = fromCoAP(receivedMsg);
-        for(std::string s1 : translatedMsg){
+        /*for(std::string s1 : translatedMsg){
             std::cout << "Received Message: " << s1 << std::endl;
+        }*/
+        std::string path = translatedMsg[5];
+        std::cout << "Received " << translatedMsg[2] << " Request for sensor: " << path << std::endl;
+        
+        std::vector<char> msg = toCoAP(prepareMsg(path));
+
+        // Write out to that socket
+        std::cout << "Sending Response" << std::endl;
+        int sendOk = sendto(listening, msg.data(), msg.size(), 0, (sockaddr*)&client, sizeof(client));
+
+        if(sendOk == SOCKET_ERROR){
+            std::cerr << "Message was not sent " << WSAGetLastError() << std::endl;
         }
+
     }
 
     // Close listening socket
@@ -99,4 +119,35 @@ int main(){
     // Cleanup winsock
     WSACleanup();
     
+}
+
+std::vector<std::string> prepareMsg(std::string path){
+
+    std::vector<std::string> responseMsg;
+    responseMsg.push_back("1");
+    responseMsg.push_back("NON");
+    responseMsg.push_back("POST");
+    responseMsg.push_back("");
+    responseMsg.push_back("Uri-Path");
+    responseMsg.push_back(path);
+    responseMsg.push_back(GetSensorData(path));
+
+    return responseMsg;
+    
+}
+
+std::string GetSensorData(std::string path){
+
+    std::ifstream database("database.txt");
+    std::string s;
+    std::string delimiter = ":";
+    while(getline (database, s)) {
+        std::string pathFromDB = s.substr(0, s.find(delimiter)); 
+        s.erase(0, s.find(delimiter)+1); 
+        std::string dataFromDB = s;
+        if(std::string(pathFromDB) == std::string(path)){
+            return dataFromDB;
+        }
+    }
+    return "ERROR";
 }
