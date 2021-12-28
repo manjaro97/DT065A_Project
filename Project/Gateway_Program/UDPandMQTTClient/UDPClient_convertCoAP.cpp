@@ -1,7 +1,7 @@
 #include <iostream>
 #include <bitset>
 #include <sstream>
-#include "convertCoAP.h"
+#include "UDPClient_convertCoAP.h"
 
 std::string fromCoAPoptionDelta(std::string delta);
 std::string toCoAPoptionDelta(std::string delta);

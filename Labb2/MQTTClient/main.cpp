@@ -4,8 +4,7 @@
 #include <vector>
 #include <WS2tcpip.h>
 
-// cd "c:\Users\Manjaro\Desktop\DT065A_Project\DT065A_Project\LABB2\MQTTClient\" ; if ($?) { g++ main.cpp -o main -lws2_32} ; if ($?) { .\main }
-// cd "c:\Users\j_c_k\Desktop\DT065A_Project\DT065A_Project\LABB2\MQTTClient\" ; if ($?) { g++ main.cpp -o main -lws2_32} ; if ($?) { .\main }
+// cd "c:\Users\j_c_k\Desktop\DT065A_Project\DT065A_Project\Project\Gateway_Program\MQTTClient\" ; if ($?) { g++ *.cpp -o main -lws2_32} ; if ($?) { .\main }
 
 std::vector<char> SendConnect();
 
@@ -49,16 +48,27 @@ int main(){
     char buf[65535];
     std::string userInput;
 
+    std::vector<char> sendReady = SendConnect();
+    int sendResult = send(sock, sendReady.data(), sendReady.size(), 0);
+    ZeroMemory(buf, 65535);
+    int bytesReceived = recv(sock, buf, 65535, 0);
+    if(bytesReceived > 0){
+        // Echo response to console
+        std::cout << "SERVER>" << std::string(buf, 0, bytesReceived) << std::endl;
+    }
+
     do
     {
         // Prompt the user for some text
         std::cout << "> ";
         std::getline(std::cin, userInput);
 
+        //TODO: Change SendConnect to SendData
         std::vector<char> sendReady = SendConnect();
 
         std::string receivedMsg;
 
+        //TODO: Should probs remove the Userinput
         if(userInput.size() > 0){       // Make sure the user has typed in something
             // Send the text
             int sendResult = send(sock, sendReady.data(), sendReady.size(), 0);

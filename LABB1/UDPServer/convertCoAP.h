@@ -8,8 +8,4 @@ std::vector<char> toCoAP(std::vector<std::string>);
 
 std::vector<std::string> fromCoAP(std::vector<char>);
 
-int binToDec(std::string);
-
-std::string binToText(std::string);
-
 #endif

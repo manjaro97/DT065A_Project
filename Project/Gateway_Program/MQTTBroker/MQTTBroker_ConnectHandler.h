@@ -1,9 +1,10 @@
-#ifndef CONNECTHANDLER_H
-#define CONNECTHANDLER_H
+#ifndef MCONNECTHANDLER_H
+#define MCONNECTHANDLER_H
 
-#include "TCPlistener.h"
-#include "Header.h"
-#include "database.h"
+#include "MQTTBroker_TCPlistener.h"
+#include "MQTTBroker_Header.h"
+#include "MQTTBroker_database.h"
+
 #include <string>
 
 std::vector<char> DecodeConnect(std::string msg);

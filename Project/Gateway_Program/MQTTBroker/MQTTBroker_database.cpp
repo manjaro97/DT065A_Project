@@ -1,4 +1,4 @@
-#include "database.h"
+#include "MQTTBroker_database.h"
 #include <iostream>
 #include <fstream>
 #include <algorithm>
@@ -59,6 +59,7 @@ void DB::AddSubscription(std::string topic, SOCKET clientSOCKET){
     //For retained messages
     std::pair<SOCKET, std::string> queuedSubscriber(clientSOCKET, topic);
     queuedSubscription.insert(queuedSubscriber);
+    
     std::cout << "Client: " << clientSOCKET << " Added to retain queue of topic: " << topic << std::endl;
     for(std::pair<SOCKET, std::string> p : queuedSubscription){
         std::cout << "Client: " << clientSOCKET << " Added to retain queue of topic: " << topic << std::endl;
