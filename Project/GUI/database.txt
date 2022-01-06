@@ -1,2 +1,2 @@
-temperature: b'16'
-humidity: b'33'
+temperature: b'19'
+humidity: b'38'

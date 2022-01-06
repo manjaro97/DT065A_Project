@@ -16,6 +16,9 @@ class GetTemp(resource.Resource):
     async def render_get(self, request):
 
         payload = str(int(random.gauss(20, 2))).encode('utf-8')
+        print("\n\n")
+        print(datetime.datetime.now())
+        print("\n\n")
         return aiocoap.Message(payload=payload)
 
 class GetHum(resource.Resource):

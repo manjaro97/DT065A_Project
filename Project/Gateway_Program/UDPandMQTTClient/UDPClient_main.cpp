@@ -17,11 +17,11 @@ void runUDPClient(){
 
     std::vector<std::string> temp = createGetMessage(tempSensor);
     std::vector<std::string> hum = createGetMessage(humSensor);
-    
+    int i = 0;
     while(true){
-
+        i++;
         try {
-            std::cout << ".UDPclient.  Sending GET request for sensor: " << tempSensor << std::endl;
+            std::cout << ".UDPclient.  Sending GET request for sensor: " << tempSensor << " >" << i << std::endl;
             std::vector<char> returnMsg = sendMessage(toCoAP(temp));
 
             std::vector<std::string> s = fromCoAP(returnMsg);
@@ -52,8 +52,8 @@ void runUDPClient(){
             std::cout << "Failed to Send Message" << std::endl;
         }
 
-        std::cout << "\n.UDPclient.  Waiting 9 seconds...\n" << std::endl;
-        Sleep(9000);
+        std::cout << "\n.UDPclient.  Waiting 1 seconds...\n" << std::endl;
+        Sleep(1000);
 
     }
 

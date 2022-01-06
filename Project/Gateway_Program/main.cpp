@@ -22,8 +22,6 @@ int main(){
 	while(true){
 
 
-        std::cout << "\n.KeepAlive.  Waiting 30 seconds...\n" << std::endl;
-        Sleep(30000);
     }
 
 	return 0;

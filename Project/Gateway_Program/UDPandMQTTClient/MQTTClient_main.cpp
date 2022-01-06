@@ -64,8 +64,8 @@ void runMQTTClient(){
     do
     {
         //Wait for 10 Seconds
-        std::cout << ".MQTTclient. ---Waiting 10 seconds---" << std::endl;
-        Sleep(10000);
+        std::cout << ".MQTTclient. ---Waiting 1 seconds---" << std::endl;
+        Sleep(1000);
 
         std::cout << ".MQTTclient. Sending Publish to Broker" << std::endl;
         std::map<std::string, std::string> m = dataObj.GetData();
